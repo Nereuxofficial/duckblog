@@ -1,0 +1,39 @@
+stages:
+  - test
+
+cargo-fmt:
+  image: rustdocker/rust:stable
+  stage: test
+  script:
+    - cargo fmt --all -- --check
+
+cargo-check:
+  image: rustdocker/rust:stable
+  stage: test
+  script:
+    - cargo check --verbose
+
+cargo-build:
+  image: rustdocker/rust:stable
+  stage: test
+  script:
+    - cargo build
+    - cargo test --verbose --jobs 1
+    - cargo doc
+
+cargo-build-release:
+  image: rustdocker/rust:stable
+  stage: test
+  script:
+    - cargo build --all-features --release
+
+terraform:
+  image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+  variables:
+    TF_ROOT: infra
+
+  stage: test
+  script:
+    - gitlab-terraform init
+    - gitlab-terraform fmt --check
+    - gitlab-terraform validate
