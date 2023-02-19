@@ -30,7 +30,7 @@ fn increase_vec(vector: &Vec<u32>) -> Vec<u32> {
 }
 ```
 
-The default compiler gives no warnings at all. However, using `cargo clippy` in the projects' directory gives us the
+While `cargo check` gives no warnings at all using `cargo clippy` in the projects' directory gives us the
 following tip:
 [![Clippy Output](./images/clippy_output.png)](https://rust-lang.github.io/rust-clippy/master/index.html#ptr_arg)
 
@@ -122,7 +122,7 @@ fn main(){
             if let Ok(s) = std::str::from_utf8(data) {
                 let _ = url::Url::parse(s);
             }
-        }
+        })
     }
 }
 ```
