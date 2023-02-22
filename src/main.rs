@@ -25,6 +25,7 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/posts/*path", get(get_post))
         .route("/posts/", get(list_posts))
+        .route("/", get(list_posts))
         .fallback(handler_404);
 
     // run our app with hyper
@@ -61,10 +62,6 @@ async fn get_image(path: String) -> impl IntoResponse {
     }
 }
 
-async fn list_posts() -> impl IntoResponse {
-    "Nope not yet"
-}
-
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if path.contains("images") {
         return get_image(path).await.into_response();
@@ -90,6 +87,19 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     } else {
         handler_404().await.into_response()
     }
+}
+async fn list_posts() -> impl IntoResponse {
+    info!("Listing posts");
+    let posts = Post::parse_all_posts().await.unwrap();
+    let compiler = liquid::ParserBuilder::with_stdlib()
+        .build()
+        .expect("Could not build liquid compiler");
+    let template = compiler
+        .parse(&read_to_string("src/index.html.liquid").unwrap())
+        .unwrap();
+    let globals: Object = object!({ "posts": posts });
+    let markup = template.render(&globals).unwrap();
+    Html(markup).into_response()
 }
 
 async fn handler_404() -> impl IntoResponse {

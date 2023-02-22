@@ -4,13 +4,14 @@ use tokio::fs::{read_to_string, File};
 
 // TODO: Cache Posts
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct Post {
     pub content: String,
+    pub path: String,
     pub metadata: PostMetadata,
 }
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PostMetadata {
     pub title: String,
     pub date: String,
@@ -21,7 +22,6 @@ pub struct PostMetadata {
 }
 
 impl Post {
-    // TODO: Make this a result
     pub async fn load(path: String) -> Result<Self> {
         if File::open(format!("content/posts/{path}")).await.is_ok() {
             Self::parse_file(format!("{path}/index")).await
@@ -54,6 +54,7 @@ impl Post {
         html::push_html(&mut html, parser);
         Ok(Post {
             content: html,
+            path: format!("posts/{path}", path = path.replace("index", "")),
             metadata,
         })
     }
@@ -68,6 +69,16 @@ impl Post {
             posts_list.push(Post::load(post_title.clone()).await?);
         }
         Ok(posts_list)
+    }
+    pub async fn parse_all_posts_with_tag(tag: String) -> Result<Vec<Self>> {
+        let mut posts = Post::parse_all_posts().await?;
+        posts.retain(|post| post.metadata.tags.contains(&tag));
+        Ok(posts)
+    }
+    pub async fn parse_all_posts_with_keyword(keyword: String) -> Result<Vec<Self>> {
+        let mut posts = Post::parse_all_posts().await?;
+        posts.retain(|post| post.metadata.keywords.contains(&keyword));
+        Ok(posts)
     }
 }
 
