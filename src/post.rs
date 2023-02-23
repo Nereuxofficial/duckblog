@@ -1,5 +1,6 @@
 use color_eyre::Result;
 use pulldown_cmark::{html, CowStr, Parser};
+use std::env;
 use tokio::fs::{read_to_string, File};
 
 // TODO: Cache Posts
@@ -68,16 +69,15 @@ impl Post {
             let post_title = post.file_name().into_string().unwrap().replace(".md", "");
             posts_list.push(Post::load(post_title.clone()).await?);
         }
+        if env::var("DEBUG").is_err() {
+            posts_list.retain(|post| post.metadata.draft != Some(true));
+        }
+        posts_list.sort_by(|a, b| b.metadata.date.cmp(&a.metadata.date));
         Ok(posts_list)
     }
     pub async fn parse_all_posts_with_tag(tag: String) -> Result<Vec<Self>> {
         let mut posts = Post::parse_all_posts().await?;
         posts.retain(|post| post.metadata.tags.contains(&tag));
-        Ok(posts)
-    }
-    pub async fn parse_all_posts_with_keyword(keyword: String) -> Result<Vec<Self>> {
-        let mut posts = Post::parse_all_posts().await?;
-        posts.retain(|post| post.metadata.keywords.contains(&keyword));
         Ok(posts)
     }
 }

@@ -77,10 +77,14 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         let title = post.metadata.title.clone();
         let description = post.metadata.description.clone();
         let content = post.content.clone();
+        let navbar = read_to_string("src/navbar.liquid").unwrap();
+        let footer = read_to_string("src/footer.liquid").unwrap();
         let globals: Object = object!({
             "title": title,
             "description": description,
-            "content": content
+            "content": content,
+            "navbar": navbar,
+            "footer": footer,
         });
         let markup = template.render(&globals).unwrap();
         Html(markup).into_response()
@@ -94,10 +98,14 @@ async fn list_posts() -> impl IntoResponse {
     let compiler = liquid::ParserBuilder::with_stdlib()
         .build()
         .expect("Could not build liquid compiler");
+    let navbar = read_to_string("src/navbar.liquid").unwrap();
+    let footer = read_to_string("src/footer.liquid").unwrap();
     let template = compiler
         .parse(&read_to_string("src/index.html.liquid").unwrap())
         .unwrap();
-    let globals: Object = object!({ "posts": posts });
+    let mut globals: Object = object!({ "posts": posts,
+            "navbar": navbar,
+            "footer": footer });
     let markup = template.render(&globals).unwrap();
     Html(markup).into_response()
 }

@@ -20,7 +20,7 @@
 </head>
 
 <body class="bg-gray-900 text-gray-300">
-{% include header.liquid %}
+{{ navbar }}
 
 <!-- Posts -->
 <div class="container mx-auto" style="padding-top: 100px">
@@ -28,7 +28,7 @@
     <p class="text-center text-white"> {{ description }}</p>
     {{ content }}
 </div>
-{% include footer.liquid %}
+{{ footer }}
 
 </body>
 </html>
