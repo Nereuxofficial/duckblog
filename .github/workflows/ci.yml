@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master, dev]
+    branches: [main, dev]
   pull_request:
-    branches: [master, dev]
+    branches: [main, dev]
 
 env:
   CARGO_TERM_COLOR: always
@@ -78,5 +78,5 @@ jobs:
           override: true
           components: clippy
 
-      - name: Run cargo clippy --package game --all-targets
-        run: cargo clippy --package game --all-targets
+      - name: Run cargo clippy --package duckblog --all-targets
+        run: cargo clippy --package duckblog --all-targets
