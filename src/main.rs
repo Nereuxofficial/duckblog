@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
     let app = Router::new()
         .route("/posts/*path", get(get_post))
-        .route("/posts/", get(list_posts))
+        .route("/posts", get(list_posts))
         .route("/", get(list_posts))
         .nest(
             "/static",
