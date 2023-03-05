@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use pulldown_cmark::{html, CowStr, Parser};
+use pulldown_cmark::{html, Parser};
 use std::env;
 use tokio::fs::{read_to_string, File};
 

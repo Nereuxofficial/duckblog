@@ -1,11 +1,8 @@
-use crate::post::{Post, PostMetadata};
+use crate::post::PostMetadata;
 use axum::body::{boxed, Body, BoxBody};
 use axum::http::{Request, Response, StatusCode, Uri};
-use axum::Router;
 use liquid::{object, Template};
 use std::fs::read_to_string;
-use std::io::Error;
-use std::path::Path;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
 use tracing::debug;

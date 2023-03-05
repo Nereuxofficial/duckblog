@@ -15,8 +15,6 @@ use std::fs::read_to_string;
 use std::net::SocketAddr;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
-use tower::ServiceExt;
-use tower_http::services::ServeDir;
 use tracing::*;
 
 #[tokio::main]
@@ -103,7 +101,7 @@ async fn list_posts() -> impl IntoResponse {
     let navbar = read_to_string("src/navbar.liquid").unwrap();
     let footer = read_to_string("src/footer.liquid").unwrap();
     let template = liquid_parse("index.html.liquid");
-    let mut globals: Object = object!({ "posts": posts,
+    let globals: Object = object!({ "posts": posts,
             "navbar": navbar,
             "footer": footer });
     let markup = template.render(&globals).unwrap();
