@@ -37,20 +37,6 @@ impl Post {
         let metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
         let markdown = file.split("+++").nth(2).unwrap();
         let parser = Parser::new(markdown);
-        // TODO: Make this cleaner
-        // Fix the image links
-        let parser = parser.map(|mut event| {
-            if let pulldown_cmark::Event::Start(pulldown_cmark::Tag::Image(_, ref mut link, ..)) =
-                event
-            {
-                *link = CowStr::from(format!(
-                    "./{path}/{link}",
-                    path = path.split('/').next().unwrap(),
-                    link = link.replace("./", "")
-                ));
-            }
-            event
-        });
         let mut html = String::new();
         html::push_html(&mut html, parser);
         Ok(Post {

@@ -1,23 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@1.x.x/dist/tailwind.min.css">
-    <title>{{ title }} - Nereuxofficial's Blog</title>
-    <style>
-        code {
-            background-color: #1a202c;
-            color: #f56565;
-            padding: 0 5px;
-            border-radius: 5px;
-        }
-        h2 {
-            font-size: 2rem;
-        }
-        p {
-            margin-bottom: 25px; /* between paragraphs */
-        }
-    </style>
-</head>
+{{ header }}
 
 <body class="bg-gray-900 text-gray-300">
 {{ navbar }}
@@ -29,6 +12,7 @@
     {{ content }}
 </div>
 {{ footer }}
-
+<script data-goatcounter="https://nereux.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

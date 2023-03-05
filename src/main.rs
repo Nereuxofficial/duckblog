@@ -1,6 +1,8 @@
 mod post;
+mod utils;
 
 use crate::post::Post;
+use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
 use axum::extract::Path;
 use axum::http::StatusCode;
@@ -13,6 +15,8 @@ use std::fs::read_to_string;
 use std::net::SocketAddr;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
+use tower::ServiceExt;
+use tower_http::services::ServeDir;
 use tracing::*;
 
 #[tokio::main]
@@ -26,6 +30,10 @@ async fn main() -> Result<()> {
         .route("/posts/*path", get(get_post))
         .route("/posts/", get(list_posts))
         .route("/", get(list_posts))
+        .nest(
+            "/static",
+            Router::new().route("/*uri", get(static_file_handler)),
+        )
         .fallback(handler_404);
 
     // run our app with hyper
@@ -68,21 +76,18 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     }
     debug!("Post `{}` requested", path);
     if let Ok(post) = Post::load(path).await {
-        let compiler = liquid::ParserBuilder::with_stdlib()
-            .build()
-            .expect("Could not build liquid compiler");
-        let template = compiler
-            .parse(&read_to_string("src/post.html.liquid").unwrap())
-            .unwrap();
+        let template = liquid_parse("post.html.liquid");
         let title = post.metadata.title.clone();
         let description = post.metadata.description.clone();
         let content = post.content.clone();
+        let header = build_header(Some(post.metadata));
         let navbar = read_to_string("src/navbar.liquid").unwrap();
         let footer = read_to_string("src/footer.liquid").unwrap();
         let globals: Object = object!({
             "title": title,
             "description": description,
             "content": content,
+            "header": header,
             "navbar": navbar,
             "footer": footer,
         });
@@ -95,14 +100,9 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
 async fn list_posts() -> impl IntoResponse {
     info!("Listing posts");
     let posts = Post::parse_all_posts().await.unwrap();
-    let compiler = liquid::ParserBuilder::with_stdlib()
-        .build()
-        .expect("Could not build liquid compiler");
     let navbar = read_to_string("src/navbar.liquid").unwrap();
     let footer = read_to_string("src/footer.liquid").unwrap();
-    let template = compiler
-        .parse(&read_to_string("src/index.html.liquid").unwrap())
-        .unwrap();
+    let template = liquid_parse("index.html.liquid");
     let mut globals: Object = object!({ "posts": posts,
             "navbar": navbar,
             "footer": footer });
