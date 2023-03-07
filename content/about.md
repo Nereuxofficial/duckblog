@@ -1,7 +1,10 @@
----
-title: "About"
-date: 2021-09-12T22:08:05+02:00
----
++++
+title= "About"
+date= "2021-09-12T22:08:05+02:00"
+tags= []
+keywords= []
+description= "About the author"
++++
 
 
 ## About Me

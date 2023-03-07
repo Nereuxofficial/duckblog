@@ -16,7 +16,11 @@ use std::net::SocketAddr;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tracing::*;
-
+// TODO: Tables don't get processed properly
+// TODO: Estimated reading time
+// TODO: Make logo larger and remove Home Text
+// TODO: Time formatting
+// TODO: Feedback button in navbar with link to github issues
 #[tokio::main]
 async fn main() -> Result<()> {
     // initialize color_eyre
@@ -28,6 +32,14 @@ async fn main() -> Result<()> {
         .route("/posts/*path", get(get_post))
         .route("/posts", get(list_posts))
         .route("/", get(list_posts))
+        .route(
+            "/about",
+            get(|| async { get_post(Path("../about".to_string())).await }),
+        )
+        .route(
+            "/donate",
+            get(|| async { get_post(Path("../donate".to_string())).await }),
+        )
         .nest(
             "/static",
             Router::new().route("/*uri", get(static_file_handler)),
@@ -69,11 +81,13 @@ async fn get_image(path: String) -> impl IntoResponse {
 }
 
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
+    // Dumb workaround for images in posts
     if path.contains("images") {
         return get_image(path).await.into_response();
     }
     debug!("Post `{}` requested", path);
-    if let Ok(post) = Post::load(path).await {
+    let loaded_post = Post::load(format!("content/posts/{}", path)).await;
+    if let Ok(post) = loaded_post {
         let template = liquid_parse("post.html.liquid");
         let title = post.metadata.title.clone();
         let description = post.metadata.description.clone();
@@ -92,6 +106,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         let markup = template.render(&globals).unwrap();
         Html(markup).into_response()
     } else {
+        debug!("Post not found because: {:#?}", loaded_post);
         handler_404().await.into_response()
     }
 }

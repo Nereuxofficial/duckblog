@@ -1,7 +1,8 @@
 use color_eyre::Result;
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{html, Event, Parser};
 use std::env;
 use tokio::fs::{read_to_string, File};
+use tracing::{debug, Metadata};
 
 // TODO: Cache Posts
 
@@ -24,14 +25,15 @@ pub struct PostMetadata {
 
 impl Post {
     pub async fn load(path: String) -> Result<Self> {
-        if File::open(format!("content/posts/{path}")).await.is_ok() {
+        if File::open(path.clone()).await.is_ok() {
             Self::parse_file(format!("{path}/index")).await
         } else {
             Self::parse_file(path).await
         }
     }
     async fn parse_file(path: String) -> Result<Self> {
-        let file = read_to_string(format!("content/posts/{path}.md")).await?;
+        debug!("Parsing post `{}`", path);
+        let file = read_to_string(format!("{path}.md")).await?;
         // Cut metadata from the markdown file and parse it
         let file_metadata = file.split("+++").nth(1).unwrap();
         let metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
@@ -41,7 +43,7 @@ impl Post {
         html::push_html(&mut html, parser);
         Ok(Post {
             content: html,
-            path: format!("posts/{path}", path = path.replace("index", "")),
+            path: path.replace("index", "").replace("content/", ""),
             metadata,
         })
     }
@@ -53,7 +55,7 @@ impl Post {
             let post = post.unwrap();
             // Remove the .md extension
             let post_title = post.file_name().into_string().unwrap().replace(".md", "");
-            posts_list.push(Post::load(post_title.clone()).await?);
+            posts_list.push(Post::load(format!("content/posts/{}", post_title)).await?);
         }
         if env::var("DEBUG").is_err() {
             posts_list.retain(|post| post.metadata.draft != Some(true));

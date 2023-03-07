@@ -1,7 +1,10 @@
----
-title: "Donate"
-date: 2021-09-12T22:08:05+02:00
----
++++
+title= "Donate"
+date= "2021-09-12T22:08:05+02:00"
+tags= []
+keywords= []
+description= "Donate to support me"
++++
 
 I am currently a university student and occupied as a developer. I am not making any money with this blog. If you want to support 
 me you can do so by donating to my [Liberapay](https://liberapay.com/Nereuxofficial/) or Monero: 
