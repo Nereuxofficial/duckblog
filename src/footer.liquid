@@ -4,8 +4,11 @@
             async src="//gc.zgo.at/count.js"></script>
     <script type="text/javascript" src="/static/highlight.min.js"></script>
     <script type="text/javascript">
-        console.debug("Highlighting code blocks");
-        hljs.highlightAll();</script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.debug("Highlighting code blocks");
+            hljs.highlightAll();
+        });
+        </script>
     <div class="flex justify-center mb-9">
         <a rel="me" href="https://infosec.exchange/@Nereuxofficial" class="mr-9 text-gray-800">
             <!-- Icon by boxicons https://www.svgrepo.com/svg/333570/mastodon -->
