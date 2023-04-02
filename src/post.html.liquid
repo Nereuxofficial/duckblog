@@ -2,13 +2,25 @@
 <html lang="en">
 {{ header }}
 
-<body class="bg-gray-900 text-gray-300">
+<body class="bg-auto text-gray-300">
 {{ navbar }}
 
 <!-- Posts -->
 <div class="container mx-auto" style="padding-top: 100px">
-    <h1 class="text-5xl text-center text-green-200"> {{ title }}</h1>
+    <h1 class="text-5xl text-center text-green-500"> {{ title }}</h1>
     <p class="text-center text-white"> {{ description }}</p>
+    <!-- Time to read, date and tags -->
+    <div class="flex flex-row justify-center">
+        <div class="flex flex-row items-center">
+            <p class="text-sm text-gray-500 ml-1"> {{ post.metadata.date }}</p>
+            <p class="text-sm text-gray-500 ml-1"> {{ post.metadata.time_to_read }} minute read</p>
+            {% for tag in post.metadata.tags %}
+                <a href="/tag/{{ tag }}">
+                    <p class="underline text-sm text-green-500 ml-1"> {{ tag }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
     {{ content }}
 </div>
 {{ footer }}

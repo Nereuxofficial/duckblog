@@ -1,8 +1,9 @@
+use crate::utils::get_reading_time;
 use color_eyre::Result;
-use pulldown_cmark::{html, Event, Parser};
+use pulldown_cmark::{html, Parser};
 use std::env;
 use tokio::fs::{read_to_string, File};
-use tracing::{debug, Metadata};
+use tracing::*;
 
 // TODO: Cache Posts
 
@@ -16,11 +17,13 @@ pub struct Post {
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PostMetadata {
     pub title: String,
+    /// Data in RFC3339 format (2021-08-23T22:19:48+02:00)
     pub date: String,
     pub tags: Vec<String>,
     pub keywords: Vec<String>,
     pub draft: Option<bool>,
     pub description: String,
+    pub time_to_read: Option<usize>,
 }
 
 impl Post {
@@ -36,8 +39,13 @@ impl Post {
         let file = read_to_string(format!("{path}.md")).await?;
         // Cut metadata from the markdown file and parse it
         let file_metadata = file.split("+++").nth(1).unwrap();
-        let metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
+        let mut metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
         let markdown = file.split("+++").nth(2).unwrap();
+        metadata.time_to_read = Some(get_reading_time(markdown));
+        metadata.date = chrono::DateTime::parse_from_rfc3339(&metadata.date)?
+            .with_timezone(&chrono::Utc)
+            .date_naive()
+            .to_string();
         let parser = Parser::new(markdown);
         let mut html = String::new();
         html::push_html(&mut html, parser);

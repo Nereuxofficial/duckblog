@@ -44,3 +44,9 @@ pub(crate) async fn static_file_handler(
         Err(_) => Err((StatusCode::NOT_FOUND, format!("File not found"))),
     }
 }
+
+pub(crate) fn get_reading_time(text: &str) -> usize {
+    // We estimate with about 200 WPM and round up.
+    let words = text.split_whitespace().count();
+    (words as f64 / 200.0).ceil() as usize
+}

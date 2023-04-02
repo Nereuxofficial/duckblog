@@ -17,9 +17,6 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tracing::*;
 // TODO: Tables don't get processed properly
-// TODO: Estimated reading time
-// TODO: Make logo larger and remove Home Text
-// TODO: Time formatting
 // TODO: Feedback button in navbar with link to github issues
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -47,7 +44,7 @@ async fn main() -> Result<()> {
         .fallback(handler_404);
 
     // run our app with hyper
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8010));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8010));
     debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
@@ -88,14 +85,17 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     debug!("Post `{}` requested", path);
     let loaded_post = Post::load(format!("content/posts/{}", path)).await;
     if let Ok(post) = loaded_post {
+        let cloned_post = post.clone();
         let template = liquid_parse("post.html.liquid");
         let title = post.metadata.title.clone();
         let description = post.metadata.description.clone();
         let content = post.content.clone();
+        let ttr = post.metadata.time_to_read.unwrap_or(0);
         let header = build_header(Some(post.metadata));
         let navbar = read_to_string("src/navbar.liquid").unwrap();
         let footer = read_to_string("src/footer.liquid").unwrap();
         let globals: Object = object!({
+            "post": cloned_post,
             "title": title,
             "description": description,
             "content": content,
@@ -124,5 +124,5 @@ async fn list_posts() -> impl IntoResponse {
 }
 
 async fn handler_404() -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, "nothing to see here")
+    (StatusCode::NOT_FOUND, Html::from(include_str!("404.html")))
 }
