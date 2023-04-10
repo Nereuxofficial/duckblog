@@ -18,6 +18,7 @@ use tokio::io::AsyncReadExt;
 use tracing::*;
 // TODO: Tables don't get processed properly
 // TODO: Feedback button in navbar with link to github issues
+// TODO: Make footer larger
 #[tokio::main]
 async fn main() -> Result<()> {
     // initialize color_eyre
