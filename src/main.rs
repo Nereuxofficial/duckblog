@@ -29,8 +29,12 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
     let app = Router::new()
         .route("/posts/*path", get(get_post))
-        .route("/posts", get(list_posts))
-        .route("/", get(list_posts))
+        .route(
+            "/posts",
+            get(|| async { list_posts(Path(String::new())).await }),
+        )
+        .route("/", get(|| async { list_posts(Path(String::new())).await }))
+        .route("/tags/:tag", get({ move |path| list_posts(path) }))
         .route(
             "/about",
             get(|| async { get_post(Path("../about".to_string())).await }),
@@ -112,9 +116,12 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         handler_404().await.into_response()
     }
 }
-async fn list_posts() -> impl IntoResponse {
-    info!("Listing posts");
-    let posts = Post::parse_all_posts().await.unwrap();
+async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
+    info!("Listing posts with filter: {:#?}", path);
+    let mut posts = Post::parse_all_posts().await.unwrap();
+    if !path.is_empty() {
+        posts.retain(|post| post.metadata.tags.iter().any(|tag| tag == &path));
+    }
     let navbar = read_to_string("src/navbar.liquid").unwrap();
     let footer = read_to_string("src/footer.liquid").unwrap();
     let template = liquid_parse("index.html.liquid");

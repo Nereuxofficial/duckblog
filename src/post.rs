@@ -71,11 +71,6 @@ impl Post {
         posts_list.sort_by(|a, b| b.metadata.date.cmp(&a.metadata.date));
         Ok(posts_list)
     }
-    pub async fn parse_all_posts_with_tag(tag: String) -> Result<Vec<Self>> {
-        let mut posts = Post::parse_all_posts().await?;
-        posts.retain(|post| post.metadata.tags.contains(&tag));
-        Ok(posts)
-    }
 }
 
 #[cfg(test)]
