@@ -15,7 +15,7 @@
             <p class="text-sm text-gray-500 ml-1"> {{ post.metadata.date }}</p>
             <p class="text-sm text-gray-500 ml-1"> {{ post.metadata.time_to_read }} minute read</p>
             {% for tag in post.metadata.tags %}
-                <a href="/tag/{{ tag }}">
+                <a href="/tags/{{ tag }}">
                     <p class="underline text-sm text-green-500 ml-1"> {{ tag }}</p>
                 </a>
             {% endfor %}
