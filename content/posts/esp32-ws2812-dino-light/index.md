@@ -4,8 +4,8 @@ date = "2022-03-05T21:31:55+02:00"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""
-tags = ["rust", "embedded", "esp32", "ws2812"]
-keywords = ["rust", "embedded", "esp32", "ws2812"]
+tags = ["rust", "embedded", "esp32", "ws2812", "neopixel"]
+keywords = ["rust", "embedded", "esp32", "ws2812", "neopixel"]
 description = "Found a cute thing on Thingiverse and decided to make it with another chip and in Rust"
 showFullContent = false
 +++
@@ -257,7 +257,7 @@ You can find the entire source code [here](https://github.com/esp-rs/esp32-hal/b
 
 If you've read so far: Thanks, it means a lot to me!
 
-In the future we may explore how to make this controllable with Wi-fi.
+You can find the next part [here](/posts/esp32-ws2812-dino-light-2/)
 
 ## Thanks to:
 [A friend of mine, who helped me get started with this project, especially the hardware 

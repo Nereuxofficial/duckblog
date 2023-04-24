@@ -65,7 +65,7 @@ impl Post {
             let post_title = post.file_name().into_string().unwrap().replace(".md", "");
             posts_list.push(Post::load(format!("content/posts/{}", post_title)).await?);
         }
-        if env::var("DEBUG").is_err() {
+        if cfg!(not(debug_assertions)) {
             posts_list.retain(|post| post.metadata.draft != Some(true));
         }
         posts_list.sort_by(|a, b| b.metadata.date.cmp(&a.metadata.date));
