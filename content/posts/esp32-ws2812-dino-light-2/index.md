@@ -8,6 +8,7 @@ tags = ["rust", "embedded", "esp32", "ws2812", "neopixel"]
 keywords = ["rust", "embedded", "esp32", "ws2812", "neopixel"]
 description = "Connecting the Dino Light to WIFI"
 showFullContent = false
+draft = true
 +++
 If you haven't read the first part, you can do so [here](/posts/esp32-ws2812-dino-light/).
 
