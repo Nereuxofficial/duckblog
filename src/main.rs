@@ -93,18 +93,12 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if let Ok(post) = loaded_post {
         let cloned_post = post.clone();
         let template = liquid_parse("post.html.liquid");
-        let title = post.metadata.title.clone();
-        let description = post.metadata.description.clone();
-        let content = post.content.clone();
         let header = build_header(Some(post.metadata));
         let navbar = read_to_string("src/navbar.liquid").unwrap();
         let footer = read_to_string("src/footer.liquid").unwrap();
         // TODO: Cleanup, don't pass in data which is already in metadata
         let globals: Object = object!({
             "post": cloned_post,
-            "title": title,
-            "description": description,
-            "content": content,
             "header": header,
             "navbar": navbar,
             "footer": footer,

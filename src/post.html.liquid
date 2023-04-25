@@ -7,8 +7,8 @@
 
 <!-- Posts -->
 <div class="container mx-auto" style="padding-top: 100px">
-    <h1 class="text-5xl text-center text-green-500"> {{ title }}</h1>
-    <p class="text-center text-white"> {{ description }}</p>
+    <h1 class="text-5xl text-center text-green-500"> {{ post.metadata.title }}</h1>
+    <p class="text-center text-white"> {{ post.metadata.description }}</p>
     <!-- Time to read, date and tags -->
     <div class="flex flex-row justify-center">
         <div class="flex flex-row items-center">
@@ -21,7 +21,7 @@
             {% endfor %}
         </div>
     </div>
-    {{ content }}
+    {{ post.content }}
 </div>
 {{ footer }}
 </body>

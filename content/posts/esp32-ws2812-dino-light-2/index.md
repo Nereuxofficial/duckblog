@@ -22,7 +22,7 @@ FreeRTOS(or TockOS, [which recently also got support for the esp32c3](https://ww
 development, but it's already quite usable. But since this is bleeding-edge stuff there are some rough edges.
 Essentially it's a bit like tokio or async-std but for bare-metal. You have an executor, which runs your tasks and if 
 there is an await in your code it will suspend the task and poll all tasks until one of them is ready to continue. 
-Sadly those tasks do not support generics as of now, but I found a workaround for that in this project.
+Sadly those tasks don't support generics as of now, but I found a workaround for that in this project.
 
 
 ## Programming the ESP32
@@ -177,7 +177,7 @@ Which is weird because we didn't even use any interrupts...
 If only there was somebody to help me with this...
 
 %Coolduck says%
-Almost like your code got reset because it was not doing anything useful.
+Almost like your code got reset because it wasn't doing anything useful.
 %coolduck%
 
 Huh, I guess you're right.
