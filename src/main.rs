@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
             get(|| async { list_posts(Path(String::new())).await }),
         )
         .route("/", get(|| async { list_posts(Path(String::new())).await }))
-        .route("/tags/:tag", get({ move |path| list_posts(path) }))
+        .route("/tags/:tag", get(list_posts))
         .route(
             "/about",
             get(|| async { get_post(Path("../about".to_string())).await }),
@@ -96,10 +96,10 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         let title = post.metadata.title.clone();
         let description = post.metadata.description.clone();
         let content = post.content.clone();
-        let ttr = post.metadata.time_to_read.unwrap_or(0);
         let header = build_header(Some(post.metadata));
         let navbar = read_to_string("src/navbar.liquid").unwrap();
         let footer = read_to_string("src/footer.liquid").unwrap();
+        // TODO: Cleanup, don't pass in data which is already in metadata
         let globals: Object = object!({
             "post": cloned_post,
             "title": title,

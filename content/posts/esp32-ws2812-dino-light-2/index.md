@@ -1,6 +1,6 @@
 +++
 title = "Making a Dino Light with the ESP32 and WS2812 Pt. 2"
-date = "2023-04-24T21:31:55+02:00"
+date = "2023-04-22T21:31:55+02:00"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""
@@ -12,8 +12,9 @@ draft = true
 +++
 If you haven't read the first part, you can do so [here](/posts/esp32-ws2812-dino-light/).
 
-Hey, it's been a while. There has been a lot that happened since the first part and the esp-rs ecosystem has grown quite 
-a lot. Enabling Wi-Fi on bare-metal no-std Rust.
+Hey, it's been a while. There has been a lot that happened since the first part(which was last year), and the esp-rs 
+ecosystem has improved quite a lot. With no-std wifi support and support for async among many things. Now I hear you
+say "async? On an embedded device?". Well, yes. And it's actually quite nice.
 
 ## Introducing Embassy
 [Embassy](https://embassy.dev/) is an async runtime for bare-metal Rust, removing the need for a RTOS like 
@@ -21,11 +22,11 @@ FreeRTOS(or TockOS, [which recently also got support for the esp32c3](https://ww
 development, but it's already quite usable. But since this is bleeding-edge stuff there are some rough edges.
 Essentially it's a bit like tokio or async-std but for bare-metal. You have an executor, which runs your tasks and if 
 there is an await in your code it will suspend the task and poll all tasks until one of them is ready to continue. 
-Sadly those tasks do not support generics as of now, but i found a workaround for that in this project.
+Sadly those tasks do not support generics as of now, but I found a workaround for that in this project.
 
 
 ## Programming the ESP32
-It took me quite a while to figure this out but the people in the esp-rs matrix channel were very helpful.
+It took me quite a while to figure this out, but the people in the esp-rs matrix channel were very helpful.
 Here are the many but necessary dependencies along with their features:
 ```toml
 [dependencies]
@@ -172,31 +173,42 @@ entry 0x40080648
 ## The rest normal boot sequence follows after this
 ```
 Which is weird because we didn't even use any interrupts...
-Hmm if only there was somebody to help me with this...
 
-TODO: Introduce Cool duck
-%coolduck says%
+If only there was somebody to help me with this...
+
+%Coolduck says%
 Almost like your code got reset because it was not doing anything useful.
 %coolduck%
-Huh I guess you're right.
-%coolduck says%
+
+Huh, I guess you're right.
+
+%Coolduck says%
 In embedded devices there often is a Watchdog timer that resets the device if it doesn't get fed to avoid deadlocks.
 %coolduck%
+
 Oh I see, so I need to feed it somehow.
-%coolduck says%
+
+%Coolduck says%
 Yes that would be the proper way, or you disable it. Your choice.
 %coolduck%
+
 I'll disable it for now(Not only because I'm lazy but also because esp-wifi does it too in their example).
-So upon reading into the example we find that this disables the watchdog:
+So upon reading into the [example](https://github.com/esp-rs/esp-wifi/blob/main/examples-esp32/examples/embassy_dhcp.rs),
+we find that this disables the watchdog:
+
 ```rust
-// All peripherals of our chip
-let peripherals = Peripherals::take();
-// Take the Systemparts, containing the clock control, cpo_control and even radio_clock_control, which we're gonna get to later
-let mut system = peripherals.DPORT.split();
-let clocks = ClockControl::configure(system.clock_control, CpuClock::Clock240MHz).freeze();
-let mut rtc = Rtc::new(peripherals.RTC_CNTL);
-rtc.rwdt.disable();
+#[entry]
+fn main() -> ! {
+    // All peripherals of our chip
+    let peripherals = Peripherals::take();
+    // Take the Systemparts, containing the clock control, cpo_control and even radio_clock_control, which we're gonna get to later
+    let mut system = peripherals.DPORT.split();
+    let clocks = ClockControl::configure(system.clock_control, CpuClock::Clock240MHz).freeze();
+    let mut rtc = Rtc::new(peripherals.RTC_CNTL);
+    rtc.rwdt.disable();
+}
 ```
+
 Now onto getting WI-FI working. Shouldn't be too hard right?
 ```rust
 // Straight up copied from the dhcp example
@@ -298,10 +310,11 @@ async fn connection(mut controller: WifiController<'static>) {
 ```
 Now when we export the SSID and PASSWORD via Console we can connect to wifi!
 ```bash
+export SSID="your SSID" PASSWORD="your password"
 cargo run -q --release
 ```
 Now we can connect and use our LED strip. If you remember the last part, we used SPI(Serial Peripheral Interface) for this,
-but it was quite tedious to use. Luckily the Espressif Rust team has created esp-hal-smartled which allows us to use an 
+but it was quite tedious to use. Luckily, the Espressif Rust team has created esp-hal-smartled which allows us to use an 
 RMT output channel, while still having the convenience functions of the smart-leds crate.
 ```rust
 // in our main
@@ -452,10 +465,18 @@ async fn task(stack: &'static Stack<WifiDevice<'static>>) {
     }
 }
 ```
+And now we can control it via this curl POST request:
+```bash
+curl -v -d '{"r":0,"g":0,"b":200}' http://<ESP-IP-ADDRESS>
+```
+... And boom, the LEDs turn blue!
 ## The Code
 As always the repository is freely available here:
-https://github.com/Nereuxofficial/nostd-wifi-lamp
+[https://github.com/Nereuxofficial/nostd-wifi-lamp](https://github.com/Nereuxofficial/nostd-wifi-lamp)
 It also has support for some exciting things like Wokwi, which provides a simulated ESP32-C3 thanks to being created 
 with the [esp-template](https://github.com/esp-rs/esp-template).
 ## Thanks to:
-[bjoernQ](https://github.com/bjoernQ) for fixing an error where the stack overflowed into the heap and i had no idea why it was crashing.
+[bjoernQ](https://github.com/bjoernQ) for fixing an error where the stack overflowed into the heap,
+and I had no idea why it was crashing.
+
+[esp-rs](https://github.com/esp-rs) for the awesome tooling around ESP32 Microcontrollers.

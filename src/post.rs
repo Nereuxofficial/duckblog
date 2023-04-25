@@ -1,7 +1,7 @@
-use crate::utils::get_reading_time;
+use crate::utils::{get_reading_time, liquid_parse};
 use color_eyre::Result;
 use pulldown_cmark::{html, Parser};
-use std::env;
+use regex::Regex;
 use tokio::fs::{read_to_string, File};
 use tracing::*;
 
@@ -40,12 +40,15 @@ impl Post {
         // Cut metadata from the markdown file and parse it
         let file_metadata = file.split("+++").nth(1).unwrap();
         let mut metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
-        let markdown = file.split("+++").nth(2).unwrap();
+        let mut markdown = file.split("+++").nth(2).unwrap();
         metadata.time_to_read = Some(get_reading_time(markdown));
         metadata.date = chrono::DateTime::parse_from_rfc3339(&metadata.date)?
             .with_timezone(&chrono::Utc)
             .date_naive()
             .to_string();
+        // Before Parsing replace Cool duck sections
+        let parsed_md = Self::cool_duck_replacement(markdown);
+        markdown = parsed_md.as_str();
         let parser = Parser::new(markdown);
         let mut html = String::new();
         html::push_html(&mut html, parser);
@@ -54,6 +57,20 @@ impl Post {
             path: path.replace("index", "").replace("content/", ""),
             metadata,
         })
+    }
+    fn cool_duck_replacement(text: &str) -> String {
+        // Match with regex and then parse with liquid
+        let re = Regex::new(r"%Coolduck says%\s*(.*?)\s*%coolduck%").unwrap();
+        let template = liquid_parse("duck.liquid");
+        let result = re.replace_all(text, {
+            // Render template with $1
+            |caps: &regex::Captures| {
+                template
+                    .render(&liquid::object!({ "text": caps.get(1).unwrap().as_str() }))
+                    .unwrap()
+            }
+        });
+        result.to_string()
     }
     pub async fn parse_all_posts() -> Result<Vec<Self>> {
         // List all files in content/posts
