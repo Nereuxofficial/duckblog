@@ -5,7 +5,7 @@ use crate::post::Post;
 use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
 use axum::extract::Path;
-use axum::http::StatusCode;
+use axum::http::{StatusCode, Uri};
 use axum::response::{Html, IntoResponse, Response};
 use axum::{routing::get, Router};
 use color_eyre::Result;
@@ -49,7 +49,9 @@ async fn main() -> Result<()> {
         )
         .route(
             "/favicon.ico",
-            get(|| async { static_file_handler("favicon.ico").await }),
+            get(|| async {
+                static_file_handler(Uri::from_static("http://nereux.blog/favicon.ico")).await
+            }),
         )
         .fallback(handler_404);
 

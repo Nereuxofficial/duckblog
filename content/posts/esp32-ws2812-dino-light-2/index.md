@@ -472,8 +472,7 @@ curl -v -d '{"r":0,"g":0,"b":200}' http://<ESP-IP-ADDRESS>
 ```
 
 %Coolduck says%
-And the LEDs turn blue, how cool!
-I'm sure you can figure out how to make it turn red and green as well.
+And the LEDs turn blue, how nice! I'm sure you can figure out how to make it turn red and green as well.
 %coolduck%
 
 There is a lot more we can do with this, for example do rainbow colors with embassy Timers, accept GET requests to show
@@ -486,7 +485,8 @@ feel free to open an issue on the repository or contact me on [Mastodon](https:/
 ## The Code
 As always the repository is freely available here:
 [https://github.com/Nereuxofficial/nostd-wifi-lamp](https://github.com/Nereuxofficial/nostd-wifi-lamp)
-It also has support for some exciting things like Wokwi, which provides a simulated ESP32-C3 thanks to being created 
+
+The Repository also has support for some exciting things like Wokwi, which provides a simulated ESP32-C3 thanks to being created 
 with the [esp-template](https://github.com/esp-rs/esp-template).
 ## Thanks to:
 [bjoernQ](https://github.com/bjoernQ) for fixing an error where the stack overflowed into the heap,
