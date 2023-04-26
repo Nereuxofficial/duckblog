@@ -363,8 +363,8 @@ async fn led_task(
     }
 }
 ```
-Lastly we have the server code. Building an HTTP Server on bare-metal hardware is thanks to the abstractions embassy and
-esp-hal provide fairly easy.
+Lastly, we have the server code.
+Building an HTTP Server on bare-metal hardware is fairly easy thanks to the abstractions embassy and esp-hal provide.
 ```rust
 #[embassy_executor::task]
 async fn task(stack: &'static Stack<WifiDevice<'static>>) {
@@ -475,8 +475,8 @@ curl -v -d '{"r":0,"g":0,"b":200}' http://<ESP-IP-ADDRESS>
 And the LEDs turn blue, how nice! I'm sure you can figure out how to make it turn red and green as well.
 %coolduck%
 
-There is a lot more we can do with this, for example do rainbow colors with embassy Timers, accept GET requests to show
-a simple web client(which you can see in the repository) or enable the user to light up the LEDs in a certain pattern.
+There is a lot more we can do with this, for example, do rainbow colors with embassy Timers, accept GET requests to show
+a simple web client(implemented in the repository) or enable the user to light up the LEDs in a certain pattern.
 
 That's it for this post. I hope you enjoyed it and maybe even learned something. I'd like to make my future posts more 
 indepth and technical, but I'm not sure if I can do that without making them too long. If you have any suggestions,
