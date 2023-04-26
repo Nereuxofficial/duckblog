@@ -47,6 +47,10 @@ async fn main() -> Result<()> {
             "/static",
             Router::new().route("/*uri", get(static_file_handler)),
         )
+        .route(
+            "/favicon.ico",
+            get(|| async { static_file_handler("favicon.ico").await }),
+        )
         .fallback(handler_404);
 
     // run our app with hyper

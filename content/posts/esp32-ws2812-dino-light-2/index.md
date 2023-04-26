@@ -180,7 +180,7 @@ If only there was somebody to help me with this...
 Almost like your code got reset because it wasn't doing anything useful.
 %coolduck%
 
-Huh, I guess you're right.
+I guess you're right.
 
 %Coolduck says%
 In embedded devices there often is a Watchdog timer that resets the device if it doesn't get fed to avoid deadlocks.
@@ -192,6 +192,7 @@ Oh I see, so I need to feed it somehow.
 Yes that would be the proper way, or you disable it. Your choice.
 %coolduck%
 
+What a cool duck.
 I'll disable it for now(Not only because I'm lazy but also because esp-wifi does it too in their example).
 So upon reading into the [example](https://github.com/esp-rs/esp-wifi/blob/main/examples-esp32/examples/embassy_dhcp.rs),
 we find that this disables the watchdog:
@@ -469,7 +470,15 @@ And now we can control it via this curl POST request:
 ```bash
 curl -v -d '{"r":0,"g":0,"b":200}' http://<ESP-IP-ADDRESS>
 ```
-... And boom, the LEDs turn blue!
+
+%Coolduck says%
+And the LEDs turn blue, how cool!
+I'm sure you can figure out how to make it turn red and green as well.
+%coolduck%
+
+There is a lot more we can do with this, for example do rainbow colors with embassy Timers, accept GET requests to show
+a simple web client(which you can see in the repository) or enable the user to light up the LEDs in a certain pattern.
+
 That's it for this post. I hope you enjoyed it and maybe even learned something. I'd like to make my future posts more 
 indepth and technical, but I'm not sure if I can do that without making them too long. If you have any suggestions,
 feel free to open an issue on the repository or contact me on [Mastodon](https://infosec.exchange/@Nereuxofficial).
