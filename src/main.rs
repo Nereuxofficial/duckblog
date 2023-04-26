@@ -17,8 +17,6 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tracing::*;
 // TODO: Tables don't get processed properly
-// TODO: Feedback button in navbar with link to github issues
-// TODO: Make footer larger
 // TODO: Make static sites
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -50,7 +48,7 @@ async fn main() -> Result<()> {
         .route(
             "/favicon.ico",
             get(|| async {
-                static_file_handler(Uri::from_static("http://nereux.blog/favicon.ico")).await
+                static_file_handler(Uri::from_static("https://nereux.blog/favicon.ico")).await
             }),
         )
         .fallback(handler_404);

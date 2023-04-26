@@ -358,7 +358,7 @@ async fn led_task(
         let receiver = CHANNEL.receiver();
         let color: RGB8 = receiver.recv().await.into();
         // If you send an array of colours you could also color the LEDs differently but in what is typical Go fashion
-        // that is left as an exercise to the reader(See https://fasterthanli.me/articles/lies-we-tell-ourselves-to-keep-using-golang#go-as-a-prototyping-starter-language
+        // that is left as an exercise to the reader(See https://fasterthanli.me/articles/lies-we-tell-ourselves-to-keep-using-golang#go-as-a-prototyping-starter-language)
         leds.write([color; 23].into_iter()).unwrap();
     }
 }
