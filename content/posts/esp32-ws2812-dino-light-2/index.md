@@ -470,6 +470,10 @@ And now we can control it via this curl POST request:
 curl -v -d '{"r":0,"g":0,"b":200}' http://<ESP-IP-ADDRESS>
 ```
 ... And boom, the LEDs turn blue!
+That's it for this post. I hope you enjoyed it and maybe even learned something. I'd like to make my future posts more 
+indepth and technical, but I'm not sure if I can do that without making them too long. If you have any suggestions,
+feel free to open an issue on the repository or contact me on [Mastodon](https://infosec.exchange/@Nereuxofficial).
+
 ## The Code
 As always the repository is freely available here:
 [https://github.com/Nereuxofficial/nostd-wifi-lamp](https://github.com/Nereuxofficial/nostd-wifi-lamp)
