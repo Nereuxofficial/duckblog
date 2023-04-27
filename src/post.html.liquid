@@ -6,17 +6,17 @@
 {{ navbar }}
 
 <!-- Posts -->
-<div class="container mx-auto" style="padding-top: 100px">
-    <h1 class="text-5xl text-center text-green-500"> {{ post.metadata.title }}</h1>
-    <p class="text-center text-white"> {{ post.metadata.description }}</p>
+<div class="container mx-auto px-4 md:px-0 md:max-w-3xl lg:max-w-4xl xl:max-w-5xl" style="padding-top: 6rem; padding-bottom: 2rem;">
+    <h1 class="text-5xl text-center text-green-500">{{ post.metadata.title }}</h1>
+    <p class="text-center text-white">{{ post.metadata.description }}</p>
     <!-- Time to read, date and tags -->
     <div class="flex flex-row justify-center">
         <div class="flex flex-row items-center">
-            <p class="text-sm text-gray-500 ml-1"> {{ post.metadata.date }}</p>
-            <p class="text-sm text-gray-500 ml-1"> {{ post.metadata.time_to_read }} minute read</p>
+            <p class="text-sm text-gray-500 ml-1">{{ post.metadata.date }}</p>
+            <p class="text-sm text-gray-500 ml-1">{{ post.metadata.time_to_read }} minute read</p>
             {% for tag in post.metadata.tags %}
                 <a href="/tags/{{ tag }}">
-                    <p class="underline text-sm text-green-500 ml-1"> {{ tag }}</p>
+                    <p class="underline text-sm text-green-500 ml-1">{{ tag }}</p>
                 </a>
             {% endfor %}
         </div>
