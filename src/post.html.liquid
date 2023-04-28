@@ -10,13 +10,15 @@
     <h1 class="text-5xl text-center text-green-500">{{ post.metadata.title }}</h1>
     <p class="text-center text-white">{{ post.metadata.description }}</p>
     <!-- Time to read, date and tags -->
-    <div class="flex flex-row justify-center">
-        <div class="flex flex-row items-center">
+    <div class="flex flex-col justify-center items-center md:flex-row md:justify-between md:items-center mt-4">
+        <div class="flex flex-row items-center mb-2 md:mb-0">
             <p class="text-sm text-gray-500 ml-1">{{ post.metadata.date }}</p>
             <p class="text-sm text-gray-500 ml-1">{{ post.metadata.time_to_read }} minute read</p>
+        </div>
+        <div class="flex flex-wrap">
             {% for tag in post.metadata.tags %}
                 <a href="/tags/{{ tag }}">
-                    <p class="underline text-sm text-green-500 ml-1">{{ tag }}</p>
+                    <p class="underline text-sm text-green-500 mr-2">{{ tag }}</p>
                 </a>
             {% endfor %}
         </div>
