@@ -96,16 +96,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_load_post() {
-        let post = Post::load("Lichess-Elite-Analysis".to_string())
+        let post = Post::load("content/posts/Lichess-Elite-Analysis".to_string())
             .await
             .unwrap();
         assert_eq!(post.metadata.title, "Lichess Elite Analysis");
-        assert_eq!(post.metadata.date, "2021-09-12T21:31:55+02:00");
+        assert_eq!(post.metadata.date, "2021-09-12");
     }
 
     #[tokio::test]
     async fn test_load_post_with_folder() {
-        let post = Post::load("bitboard-rust".to_string()).await.unwrap();
+        let post = Post::load("content/posts/bitboard-rust".to_string())
+            .await
+            .unwrap();
         assert_eq!(
             post.metadata.title,
             "Writing a BitBoard in Rust Pt. 1: The Basics"
