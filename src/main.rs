@@ -1,7 +1,9 @@
 mod post;
+mod ssg;
 mod utils;
 
 use crate::post::Post;
+use crate::ssg::generate_static_site;
 use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
 use axum::extract::Path;
@@ -16,10 +18,12 @@ use std::net::SocketAddr;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tracing::*;
+
 // TODO: Tables don't get processed properly
 // TODO: Make static sites
 // TODO: Think about blue/green deployment
 // TODO: TTR and tags should be in different lines
+// TODO: Wrapping Code blocks
 #[tokio::main]
 async fn main() -> Result<()> {
     // initialize color_eyre
@@ -34,6 +38,10 @@ async fn main() -> Result<()> {
             get(|| async { list_posts(Path(String::new())).await }),
         )
         .route("/", get(|| async { list_posts(Path(String::new())).await }))
+        .route(
+            "/index.html",
+            get(|| async { list_posts(Path(String::new())).await }),
+        )
         .route("/tags/:tag", get(list_posts))
         .route(
             "/about",
@@ -58,6 +66,12 @@ async fn main() -> Result<()> {
     // run our app with hyper
     let addr = SocketAddr::from(([0, 0, 0, 0], 8010));
     debug!("listening on {}", addr);
+    if std::env::args().any(|arg| arg == "--ssg") {
+        if cfg!(debug_assertions) {
+            warn!("You are running the SSG in debug mode. This is not recommended.");
+        }
+        tokio::spawn(generate_static_site());
+    }
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
