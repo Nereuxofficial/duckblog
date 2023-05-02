@@ -167,3 +167,11 @@ There are obviously many Plugins I haven't mentioned that are very useful too, f
 [cargo-outdated](https://github.com/kbknapp/cargo-outdated), which helps you keep your dependencies up to date.
 
 But I hope at least some of them were useful to you and made your workflow a bit easier.
+
+## Additional
+### sccache
+Every Rust user knows the pain of waiting for a build to finish, especially if you are on a slow machine. sccache is a
+tool that caches compilation artifacts so that subsequent builds can reuse them. This is really useful if you are on a 
+slower machine or have many dependencies and while there are some limitations to the caching, it makes most of my builds
+much faster and is even better if you share your cache with your team(For example, using redis or one of the many other 
+supported backends).

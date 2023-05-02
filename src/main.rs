@@ -20,9 +20,7 @@ use tokio::io::AsyncReadExt;
 use tracing::*;
 
 // TODO: Tables don't get processed properly
-// TODO: Make static sites
 // TODO: Think about blue/green deployment
-// TODO: TTR and tags should be in different lines
 // TODO: Wrapping Code blocks
 #[tokio::main]
 async fn main() -> Result<()> {
