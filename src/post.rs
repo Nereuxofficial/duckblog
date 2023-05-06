@@ -6,7 +6,7 @@ use tokio::fs::{read_to_string, File};
 use tracing::*;
 
 // TODO: Cache Posts
-
+// TODO: Work out issues with pathing
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct Post {
     pub content: String,
@@ -34,7 +34,7 @@ impl Post {
             Self::parse_file(path).await
         }
     }
-    async fn parse_file(path: String) -> Result<Self> {
+    pub async fn parse_file(path: String) -> Result<Self> {
         debug!("Parsing post `{}`", path);
         let file = read_to_string(format!("{path}.md")).await?;
         // Cut metadata from the markdown file and parse it

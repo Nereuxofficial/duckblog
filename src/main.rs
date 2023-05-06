@@ -19,6 +19,12 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tracing::*;
 
+// TODO: Add image previews
+// <meta property="og:image" content="http://example.com/logo.jpg">
+// <meta property="og:image:type" content="image/png">
+// <meta property="og:image:width" content="1024">
+// <meta property="og:image:height" content="1024">
+// for social media sharing
 // TODO: Tables don't get processed properly
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks

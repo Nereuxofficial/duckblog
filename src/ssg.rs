@@ -3,14 +3,17 @@ use crate::post::Post;
 use axum::http::Uri;
 use copy_dir::copy_dir;
 use itertools::Itertools;
+use std::process::exit;
 use std::str::FromStr;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
-use tracing::info;
+use tracing::{info, warn};
 
 const SERVER_URL: &str = "0.0.0.0:8010";
 const FOLDER: &str = "public/";
 pub async fn generate_static_site() {
+    // Delete previous files
+    fs::remove_dir_all(FOLDER).await;
     // Create our folders
     fs::create_dir("public/").await;
     fs::create_dir("public/tags").await;
@@ -23,7 +26,30 @@ pub async fn generate_static_site() {
         .await;
     save_page_to_path(Uri::from_str(format!("http://{}/about", SERVER_URL).as_str()).unwrap())
         .await;
+    save_page_to_path(Uri::from_str(format!("http://{}/posts", SERVER_URL).as_str()).unwrap())
+        .await;
+    copy_post_images().await;
     info!("Static site generated");
+    exit(0);
+}
+async fn copy_post_images() {
+    info!("Copying post images");
+    let posts = Post::parse_all_posts().await.unwrap();
+    for post in posts {
+        if Post::parse_file(format!("content/{}/index", post.path))
+            .await
+            .is_ok()
+        {
+            let src = format!("content/{}images", post.path);
+            let dest = format!("{}/{}/images", FOLDER, post.path);
+            let res = copy_dir(&src, &dest);
+            if res.is_ok() {
+                info!("Copied images from {} to {}", &src, &dest);
+            } else {
+                warn!("Couldn't copy images from {} to {}", src, dest);
+            }
+        }
+    }
 }
 async fn generate_posts() {
     // Wait until the site is up
@@ -73,6 +99,9 @@ async fn save_page_to_path(uri: Uri) {
         path = big_path.as_str();
     }
     let mut response = reqwest::get(uri.to_string()).await.unwrap();
+    if path.ends_with(".html") {
+        path = &path[..path.len() - 5];
+    }
     let mut file = tokio::fs::File::create(format!("{}{}.html", FOLDER, path))
         .await
         .unwrap();
