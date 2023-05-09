@@ -9,19 +9,16 @@ use tracing::{debug, instrument};
 #[instrument]
 pub(crate) fn build_header(post: Option<PostMetadata>) -> String {
     let template = liquid_parse("header.liquid");
-    let title = post
-        .clone()
-        .map(|p| p.title)
-        .unwrap_or(String::from("Nereuxofficials Blog"));
-    let description = post
-        .map(|p| p.description)
-        .unwrap_or(String::from("TODO: Description"));
-    let extra_tags = String::new();
-    let globals = object!({
-        "title": title,
-        "description": description,
-        "extra_tags": extra_tags,
-    });
+    let metadata = {
+        match post {
+            None => PostMetadata::default(),
+            Some(m) => m,
+        }
+    };
+    if metadata.images.is_some() {
+        debug!("Images: {:#?}", metadata.images);
+    }
+    let globals = object!({ "metadata": metadata });
     template.render(&globals).unwrap()
 }
 #[instrument(skip(file))]
@@ -44,6 +41,7 @@ pub(crate) async fn static_file_handler(
         Err(_) => Err((StatusCode::NOT_FOUND, format!("File not found"))),
     }
 }
+
 #[instrument]
 pub(crate) fn get_reading_time(text: &str) -> usize {
     // We estimate with about 200 WPM and round up.

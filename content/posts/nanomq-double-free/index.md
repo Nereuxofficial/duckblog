@@ -69,7 +69,7 @@ Meanwhile NanoMQ relied on a lot of global state and was not really easy to fuzz
 a fuzzing function for it it complained that it didn't run in a multithreaded environment.
 
 %Coolduck says%
-Why would you create a fuzzing harness for every single Broker(especially with your lacking C knowledge)?
+Why would you create a fuzzing harness for every single Broker(especially with your lacking C knowledge)? 
 Couldn't you just fuzz a running MQTT broker?
 %coolduck%
 

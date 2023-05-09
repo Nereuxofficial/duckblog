@@ -28,16 +28,11 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
 
-// TODO: Add image previews to articles
-// <meta property="og:image" content="http://example.com/logo.jpg">
-// <meta property="og:image:type" content="image/png">
-// <meta property="og:image:width" content="1024">
-// <meta property="og:image:height" content="1024">
-// for social media sharing
 // TODO: Tables don't get processed properly
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks
 // TODO: Large cleanup
+// TODO: Create sitemap.xml
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
@@ -168,6 +163,8 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if path.contains("images") {
         return get_image(path).await.into_response();
     }
+    // Remove trailing slash
+    let path = path.trim_end_matches('/');
     debug!("Post `{}` requested", path);
     let loaded_post = Post::load(format!("content/posts/{}", path)).await;
     if let Ok(post) = loaded_post {

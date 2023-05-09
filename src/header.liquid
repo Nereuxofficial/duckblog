@@ -1,24 +1,58 @@
 <!-- Header -->
 <head>
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/tailwindcss@1.x.x/dist/tailwind.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@1.x.x/dist/tailwind.min.css"></noscript>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/tailwindcss@1.x.x/dist/tailwind.min.css" as="style"
+          onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@1.x.x/dist/tailwind.min.css">
+    </noscript>
     <link rel="stylesheet" href="/static/tokyo-night-dark.min.css">
-    <title>{{ title }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ metadata.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="robots" content="index">
-    <meta name="description" content="{{ description }}">
+    <meta name="description" content="{{ metadata.description }}">
     <meta property="og:locale" content="en-us">
-    <meta property="og:title" content="{{ title }}">
-    <meta property="og:type" content="article">
-    {{ extra_tags }}
+    <meta property="og:title" content="{{ metadata.title }}">
+    {% if metadata.title != "DuckBlog" %}
+        <!-- Article specific stuff -->
+        <meta property="og:type" content="article">
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "NewsArticle",
+                "headline": "{{ metadata.title }}",
+                "image": [
+                    {% capture image_urls %}
+                        {% for image in metadata.images %}
+                            "https://nereux.blog/{{ image }}"{% unless forloop.last %},{% endunless %}
+                        {% endfor %}
+                    {% endcapture %}
+                ],
+                "datePublished": "{{ metadata.date }}",
+                "dateModified": "{{ metadata.date }}",
+                "author": [{
+                    "@type": "Person",
+                    "name": "Nereuxofficial",
+                    "url": "https://nereux.blog/about"
+                }]
+            }
+
+        </script>
+    {% endif %}
+    <meta property="og:locale" content="en-us">
+    <meta property="og:site_name" content="DuckBlog">
+    {% if metadata.images %}
+        <meta property="og:image" content="https://nereux.blog/{{ metadata.images[0] }}">
+    {% endif %}
     <style>
         a:link {
             color: rgb(171, 242, 193);
         }
+
         h2 {
             font-size: 2rem;
         }
+
         p {
             margin-bottom: 25px; /* between paragraphs */
         }

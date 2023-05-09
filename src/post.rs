@@ -2,6 +2,7 @@ use crate::utils::{get_reading_time, liquid_parse};
 use color_eyre::Result;
 use pulldown_cmark::{html, Parser};
 use regex::Regex;
+use tokio::fs;
 use tokio::fs::{read_to_string, File};
 use tracing::*;
 
@@ -15,6 +16,9 @@ pub struct Post {
 }
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+pub struct Image(String);
+
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PostMetadata {
     pub title: String,
     /// Data in RFC3339 format (2021-08-23T22:19:48+02:00)
@@ -24,6 +28,23 @@ pub struct PostMetadata {
     pub draft: Option<bool>,
     pub description: String,
     pub time_to_read: Option<usize>,
+    pub images: Option<Vec<Image>>,
+}
+
+impl Default for PostMetadata {
+    fn default() -> Self {
+        PostMetadata {
+            title: "DuckBlog".to_string(),
+            date: "2021-08-23T22:19:48+02:00".to_string(),
+            tags: vec!["Duck".to_string(), "Blog".to_string()],
+            keywords: vec!["Duck".to_string(), "Blog".to_string()],
+            draft: Some(false),
+            description: "Nereuxofficial's blog about mostly Rust".to_string(),
+            time_to_read: Some(1337),
+            // TODO: Customize this for the main page
+            images: None,
+        }
+    }
 }
 
 impl Post {
@@ -37,6 +58,9 @@ impl Post {
     }
     #[instrument(err)]
     pub async fn parse_file(path: String) -> Result<Self> {
+        if path.contains("//") {
+            panic!("Path contains double slashes, this is not allowed")
+        }
         debug!("Parsing post `{}`", path);
         let file = read_to_string(format!("{path}.md")).await?;
         // Cut metadata from the markdown file and parse it
@@ -48,6 +72,7 @@ impl Post {
             .with_timezone(&chrono::Utc)
             .date_naive()
             .to_string();
+        metadata.images = Self::load_images(&path).await;
         // Before Parsing replace Cool duck sections
         let parsed_md = Self::cool_duck_replacement(markdown);
         markdown = parsed_md.as_str();
@@ -61,9 +86,33 @@ impl Post {
         })
     }
     #[instrument]
+    async fn load_images(path: &str) -> Option<Vec<Image>> {
+        match fs::read_dir(format!("{}/images", path.trim_end_matches("/index"))).await {
+            Ok(mut images) => {
+                let mut images_list = Vec::new();
+                while let Ok(entry) = images.next_entry().await {
+                    if let Some(entry) = entry {
+                        images_list.push(Image(
+                            entry
+                                .path()
+                                .to_str()
+                                .expect("Not a valid file path, should be unicode")
+                                .trim_start_matches("content/")
+                                .to_string(),
+                        ));
+                    } else {
+                        break;
+                    }
+                }
+                Some(images_list)
+            }
+            Err(_) => None,
+        }
+    }
+    #[instrument]
     fn cool_duck_replacement(text: &str) -> String {
-        // Match with regex and then parse with liquid
-        let re = Regex::new(r"%Coolduck says%\s*(.*?)\s*%coolduck%").unwrap();
+        // Match with regex(only linux newline because im not insane) and then parse with liquid
+        let re = Regex::new(r"%Coolduck says%\s*((.|\n)*?)\s*%coolduck%").unwrap();
         let template = liquid_parse("duck.liquid");
         let result = re.replace_all(text, {
             // Render template with $1
@@ -123,5 +172,40 @@ mod tests {
     async fn test_load_all_posts() {
         let posts = Post::parse_all_posts().await.unwrap();
         assert!(!posts.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_has_images() {
+        let post = Post::load("content/posts/esp32-ws2812-dino-light".to_string())
+            .await
+            .unwrap();
+        assert!(post.metadata.images.is_some());
+        assert!(!post
+            .clone()
+            .metadata
+            .images
+            .unwrap()
+            .iter()
+            .any(|image| image.0.is_empty()));
+        assert!(!post
+            .metadata
+            .clone()
+            .images
+            .unwrap()
+            .iter()
+            .any(|image| image.0.contains("//")));
+        assert!(post.metadata.clone().images.unwrap().len() == 1);
+        assert_eq!(
+            post.metadata.clone().images.unwrap()[0].0,
+            "posts/esp32-ws2812-dino-light/images/dino_light.jpg"
+        );
+        let posts = Post::parse_all_posts().await.unwrap();
+        let mut with_images = posts.iter().filter(|post| post.metadata.images.is_some());
+        // Check if we have broken paths
+        assert!(!with_images.any(|post| post
+            .metadata
+            .images
+            .iter()
+            .any(|images| images.iter().any(|image| image.0.contains("//")))));
     }
 }

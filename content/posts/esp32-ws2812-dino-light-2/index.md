@@ -6,7 +6,7 @@ authorTwitter = "" #do not include @
 cover = ""
 tags = ["rust", "embedded", "esp32", "ws2812", "neopixel"]
 keywords = ["rust", "embedded", "esp32", "ws2812", "neopixel"]
-description = "Connecting the Dino Light to WIFI"
+description = "Connecting an ESP32 Dino Light to Wi-Fi using Rust and Embassy"
 showFullContent = false
 +++
 If you haven't read the first part, you can do so [here](/posts/esp32-ws2812-dino-light/).
