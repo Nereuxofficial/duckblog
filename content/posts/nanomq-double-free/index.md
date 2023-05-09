@@ -28,8 +28,7 @@ and while most C/C++ programmers are aware of this, some of them don't know the 
 undefined behavior in C/C++. For example, the following code is [undefined behavior in C/C++](https://blog.regehr.org/archives/213):
 ```c  
 #include <limits.h>  
-#include <stdio.h>  
-  
+#include <stdio.h>
 int main (void)  
 {  
 printf ("%d\n", (INT_MAX+1) < 0);  
@@ -37,7 +36,7 @@ return 0;
 }  
 ```  
 A simple overflow. And while when you run this code on your machine, it will probably print `1`, it is not guaranteed to  
-do so, however the compiler is allowed to assume that the value is bigger than 0 and optimize the code  
+do so. However, the compiler is allowed to assume that the value is bigger than 0 and optimize the code  
 accordingly(unless compiled with -fwrapv). And while this is just one example of UB in C/C++, there are many more.  
 Now what happens when the compiler optimizes the code in a way that is not intended by the programmer? Well all 
 garuantees the language gives you are off, so [pretty much everything](https://blog.regehr.org/archives/213).
@@ -52,9 +51,27 @@ Here are some other examples of undefined behavior in C/C++:
 Now there are many tools to detect all kinds of UB(the -ftrapv flag, valgrind etc.), but they are not perfect.
 And the larger your codebase gets, the harder it gets to spot this UB and even projects like the Linux kernel with really
 skilled developers and many eyes looking at the code have [memory bugs in them](https://www.linuxkernelcves.com/cves).
-## The Fuzzing
+
+## The MQTT Protocol
+MQTT is a lightweight publish/subscribe messaging protocol, which has many applications in the IoT space. It is a binary
+protocol, which means that it is not human-readable, but it is also very compact and fast. It is also a very simple
+protocol, which makes it easy to implement. 
+
+Thankfully for our broker, we didn't have to decode the packets ourselves,
+but we could use a library for that. We used [mqtt-v5](https://github.com/bschwind/mqtt-broker) and contributed [some](https://github.com/bschwind/mqtt-broker/pull/49) 
+[patches(https://github.com/bschwind/mqtt-broker/pull/53)] to the source repository as well!
+
+## Fuzzing the brokers
+### What is fuzzing?
+The term of fuzzing goes back to the 80s, when it was used to describe the process of sending random data to a program
+to see if it crashes. They discovered bugs in many common Unix programs with this technique. [The paper](https://dl.acm.org/doi/pdf/10.1145/96267.96279) is quite interesting.
+Nowadays, Fuzzers are quite sophisticated and can find bugs in many programs. They use instrumentation to find new paths
+in the program and generate new inputs based on the data they gathered. There are many fuzzers out there, but the most
+popular ones are [AFL++](https://aflplus.plus/) and [Honggfuzz](https://honggfuzz.dev/).
+
+### Let's fuzz!
 The project was very simple: Develop a simple MQTT Broker that is secure while also being fast. During the project
-we used fuzzing to find bugs in our code and test the security of the broker. Initially the plan was to use Honggfuzz, 
+we used fuzzing to find bugs in our code and test the security of the broker. Initially, the plan was to use Honggfuzz, 
 which worked great with our Rust code and our MQTT decoding dependency, but then we had the idea to use it to fuzz other
 fuzzers as well. And while it was really easy to fuzz a function which decodes MQTT packets, passed in as raw bytes, 
 which is really easy to fuzz. Here is the code for the function:
@@ -75,8 +92,9 @@ fn main() {
     }
 }
 ```
-Meanwhile NanoMQ relied on a lot of global state and was not really easy to fuzz and when I finally had written
-a fuzzing function for it it complained that it didn't run in a multithreaded environment.
+Meanwhile, NanoMQ relied on a lot of global state and was not really easy to fuzz and when I finally had written
+a fuzzing function for it it complained that it didn't run in a multithreaded environment. There was also no guarantee
+that the fuzzing cases could be reproduced, because the packets may be dropped before being decoded there.
 
 %Coolduck says%
 Why would you create a fuzzing harness for every single Broker(especially with your lacking C knowledge)? 
@@ -136,7 +154,12 @@ fn main() {
 }
 ```
 And tested it on some other machines, where it crashed every time(except on Windows where it just didn't crash for some 
-reason). This can be quite bad because with a single packet, an unauthenticated attacker can crash the broker.
+reason).
+
+The impact of this bug is that any attacker can crash any NanoMQ instance just by knowing their IP address and port,
+making it a potential DoS vulnerability. And since NanoMQ is at least 
+[aiming to be used in production](https://github.com/emqx/nanomq/discussions/640), this is a serious issue.
+
 
 Now onto the bug itself. Upon debugging the crash, we found that the crash happens in the function `property_free`:
 ```c
