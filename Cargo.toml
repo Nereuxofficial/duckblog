@@ -36,3 +36,4 @@ tracing-opentelemetry = "0.18.0"
 tracing-error = "0.2.0"
 sentry = {version = "0.31.0", features = ["anyhow"]}
 tracing-honeycomb = "0.4.3"
+dotenvy = "0.15.7"

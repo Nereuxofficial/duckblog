@@ -14,6 +14,7 @@ use liquid::{object, Object};
 use new_mime_guess::MimeGuess;
 use opentelemetry_otlp::WithExportConfig;
 use std::collections::HashMap;
+use std::env;
 use std::error::Error;
 use std::fs::read_to_string;
 use std::net::SocketAddr;
@@ -26,8 +27,6 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
 
-const SENTRY_DSN: &str = env!("SENTRY_DSN");
-
 // TODO: Add image previews to articles
 // <meta property="og:image" content="http://example.com/logo.jpg">
 // <meta property="og:image:type" content="image/png">
@@ -39,9 +38,11 @@ const SENTRY_DSN: &str = env!("SENTRY_DSN");
 // TODO: Wrapping Code blocks
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // Read .env
+    dotenvy::dotenv().ok();
     // this reports panics
     let _guard = sentry::init((
-        SENTRY_DSN,
+        env::var("SENTRY_DSN")?,
         sentry::ClientOptions {
             release: sentry::release_name!(),
             ..Default::default()
@@ -51,7 +52,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut metadata = HashMap::new();
     metadata.insert(
         "x-honeycomb-team".to_string(),
-        env!("HONEYCOMB_API_KEY").to_string(),
+        env::var("HONEYCOMB_API_KEY")?.to_string(),
     );
     metadata.insert("x-honeycomb-dataset".to_string(), "duckblog".to_string());
     let tracer = opentelemetry_otlp::new_pipeline()
@@ -59,8 +60,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_exporter(
             opentelemetry_otlp::new_exporter()
                 .http()
-                .with_endpoint("https://api.honeycomb.io/api/v1/traces")
+                .with_endpoint("https://api.honeycomb.io/v1/traces")
                 .with_http_client(reqwest::Client::new())
+                .with_timeout(std::time::Duration::from_secs(2))
                 .with_headers(metadata),
         )
         .install_batch(opentelemetry::runtime::Tokio)?;
@@ -73,7 +75,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Registry::default()
         .with(telemetry)
         .with(
-            tracing_subscriber::fmt::layer().with_ansi(true), //.with_filter(log_filter),
+            tracing_subscriber::fmt::layer()
+                .with_ansi(true)
+                .with_filter(log_filter),
         )
         .init();
     // Define Routes
@@ -151,8 +155,9 @@ async fn get_image(path: String) -> impl IntoResponse {
     }
 }
 
+#[instrument(name = "get_post")]
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
-    // Dumb workaround for images in posts
+    // FIXME: Dumb workaround for images in posts
     if path.contains("images") {
         return get_image(path).await.into_response();
     }
@@ -178,6 +183,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         handler_404().await.into_response()
     }
 }
+#[instrument(name = "list_posts")]
 async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     info!("Listing posts with filter: {:#?}", path);
     let mut posts = Post::parse_all_posts().await.unwrap();
@@ -193,7 +199,7 @@ async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     let markup = info_span!("liquid.render").in_scope(|| template.render(&globals).unwrap());
     Html(markup).into_response()
 }
-
+#[instrument(name = "404")]
 async fn handler_404() -> impl IntoResponse {
     (StatusCode::NOT_FOUND, Html::from(include_str!("404.html")))
 }
