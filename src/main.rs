@@ -27,7 +27,7 @@ use tracing_subscriber::filter::Targets;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
-
+// FIXME: Lists don't get processed properly. They should begin with * or -
 // TODO: Tables don't get processed properly
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks

@@ -113,7 +113,7 @@ allocated twice, because essentially the memory allocator gets corrupted.
 
 But why does the terminal output say `free(): double free detected in tcache 2`?
 
-%Cooduck says%
+%Coolduck says%
 Well glibc has a memory allocator called `tcmalloc`(since 2.29) which is used by default on Linux. And it has a feature called tcache, which is a
 per-thread cache for memory allocations. And when you free a pointer twice, it will be added to the tcache, and when you
 free it again, it will detect the double free and print the error message. 
