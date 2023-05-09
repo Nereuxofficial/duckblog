@@ -12,11 +12,11 @@ draft = true
 +++  
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
 for my use cases. But there is another reason: I came from C++, but I never really liked it. I always felt that it was  
-overly complex, and it was really easy to make grave mistakes. So in this post I want to show you how I found a double  
+overly complex, and it was really easy to make grave mistakes. In this post I want to show you how I found a double  
 free in NanoMQ, an MQTT broker written in C, and what we can learn from it.
 
 ## Prerequisites
-I tried to keep this post as beginner friendly as possible, here is the short list of what you need to know:
+I tried to keep this post as beginner-friendly as possible. Here is a short list of what you need to know:
 - Basic programming knowledge
 - Basic knowledge of pointers
 
@@ -245,16 +245,22 @@ Note here that the average speed was really similar between the native brokers, 
 [here](/static/broker_benchmarks.html)
 ## Conclusion
 So... Rewrite all low-level software in Rust? No, of course not.
-But as [Azure's CTO Mark Russinovich said:](https://twitter.com/markrussinovich/status/1571995117233504257)
+But as [Azure's CTO Mark Russinovich wrote:](https://twitter.com/markrussinovich/status/1571995117233504257)
 
 "*Speaking of languages, it's time to halt starting any new projects in C/C++ and use Rust for those scenarios where a 
 non-GC language is required. For the sake of security and reliability. the industry should declare those languages as 
 deprecated.*"
 
-I largely agree with that sentiment and wouldn't start a new project in C or C++ unless I really had to. And security
+I agree with that sentiment and wouldn't start a new project in C or C++ unless I really had to. And security
 critical components C/C++ software can be rewritten in Rust, because [unlike languages like Go](https://dave.cheney.net/2016/01/18/cgo-is-not-go) 
 it plays nice with other languages and has a great FFI. This is also the reason Linux now allows for [Rust modules in the
 kernel](https://lwn.net/Articles/908347/).
 
-I hope you enjoyed this writeup and learned something from it. If you have any questions, feel free to reach out to me
-on Mastodon, Reddit or Github.
+%Coolduck says%
+So don't use unsafe languages in a new project. It's not worth it for a performance gain of a few percent(if any).
+Bonus: You get a lot of other features like a great package manager, a great build system, a great formatter, many zero-cost abstractions 
+and peace of mind that your software is safe from memory bugs.
+%coolduck%
+
+Thanks, duck! I hope you enjoyed this writeup and learned something from it. If you have any questions, feel free to 
+reach out to me on [Mastodon](https://infosec.exchange/@Nereuxofficial), [Reddit](https://www.reddit.com/user/Nereuxofficial) or [Github](https://github.com/Nereuxofficial/duckblog/issues/new).
