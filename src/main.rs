@@ -37,6 +37,7 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: Tables don't get processed properly
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks
+// TODO: Large cleanup
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env

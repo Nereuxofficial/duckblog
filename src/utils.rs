@@ -33,7 +33,7 @@ pub(crate) fn liquid_parse(file: impl ToString) -> Template {
         .parse(&read_to_string(format!("src/{}", file.to_string())).unwrap())
         .unwrap()
 }
-#[instrument]
+#[instrument(err(Debug))]
 pub(crate) async fn static_file_handler(
     uri: Uri,
 ) -> Result<Response<BoxBody>, (StatusCode, String)> {
