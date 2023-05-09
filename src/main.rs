@@ -21,6 +21,7 @@ use std::net::SocketAddr;
 use std::str::FromStr;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
+use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::*;
 use tracing_subscriber::filter::Targets;
 use tracing_subscriber::layer::SubscriberExt;
@@ -83,6 +84,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Define Routes
     let app = info_span!("route.definitions").in_scope(|| {
         Router::new()
+            .layer(
+                TraceLayer::new_for_http()
+                    .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+                    .on_response(DefaultOnResponse::new().level(Level::INFO)),
+            )
             .route("/posts/*path", get(get_post))
             .route(
                 "/posts",

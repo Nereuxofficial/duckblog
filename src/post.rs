@@ -27,6 +27,7 @@ pub struct PostMetadata {
 }
 
 impl Post {
+    #[instrument]
     pub async fn load(path: String) -> Result<Self> {
         if File::open(path.clone()).await.is_ok() {
             Self::parse_file(format!("{path}/index")).await
@@ -34,6 +35,7 @@ impl Post {
             Self::parse_file(path).await
         }
     }
+    #[instrument]
     pub async fn parse_file(path: String) -> Result<Self> {
         debug!("Parsing post `{}`", path);
         let file = read_to_string(format!("{path}.md")).await?;
@@ -58,6 +60,7 @@ impl Post {
             metadata,
         })
     }
+    #[instrument]
     fn cool_duck_replacement(text: &str) -> String {
         // Match with regex and then parse with liquid
         let re = Regex::new(r"%Coolduck says%\s*(.*?)\s*%coolduck%").unwrap();
@@ -72,6 +75,7 @@ impl Post {
         });
         result.to_string()
     }
+    #[instrument]
     pub async fn parse_all_posts() -> Result<Vec<Self>> {
         // List all files in content/posts
         let posts = std::fs::read_dir("content/posts").unwrap();
