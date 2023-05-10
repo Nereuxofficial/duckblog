@@ -15,24 +15,23 @@ for my use cases. But there is another reason: I came from C++, but I never real
 overly complex, and it was really easy to make grave mistakes. In this post I want to show you how I found a double  
 free in NanoMQ, an MQTT broker written in C, and what we can learn from it.
 
-## Prerequisites
+# Prerequisites
 I tried to keep this post as beginner-friendly as possible. Here is a short list of what you need to know:
 - Basic programming knowledge
 - Basic knowledge of pointers
 
-## Introduction to Undefined Behavior
+# Introduction to Undefined Behavior
 Coming from a high-level language like Python or Java, you might not be familiar with the concept of undefined behavior.  
 In C/C++ (and even in unsafe Rust!) you can write code that is not defined by the language. [This allows the compiler to  
-make optimizations that would not be possible otherwise](https://blog.llvm.org/2011/05/what-every-c-programmer-should-know_14.html)  
-and while most C/C++ programmers are aware of this, some of them don't know the full extent of what is and what is not  
-undefined behavior in C/C++. For example, the following code is [undefined behavior in C/C++](https://blog.regehr.org/archives/213):
+make optimizations that would not be possible otherwise](https://blog.llvm.org/2011/05/what-every-c-programmer-should-know_14.html) and while most C/C++ programmers are aware of this, some of them don't know the full extent of what is and what is not undefined behavior. 
+
+For example, the following code is [undefined behavior in C/C++](https://blog.regehr.org/archives/213):
 ```c  
 #include <limits.h>  
 #include <stdio.h>
-int main (void)  
-{  
-printf ("%d\n", (INT_MAX+1) < 0);  
-return 0;  
+int main (void) {
+    printf ("%d\n", (INT_MAX+1) < 0);  
+    return 0;  
 }  
 ```  
 A simple overflow. And while when you run this code on your machine, it will probably print `1`, it is not guaranteed to  
@@ -52,24 +51,24 @@ Now there are many tools to detect all kinds of UB(the -ftrapv flag, valgrind et
 And the larger your codebase gets, the harder it gets to spot this UB and even projects like the Linux kernel with really
 skilled developers and many eyes looking at the code have [memory bugs in them](https://www.linuxkernelcves.com/cves).
 
-## The MQTT Protocol
+# The MQTT Protocol
 MQTT is a lightweight publish/subscribe messaging protocol, which has many applications in the IoT space. It is a binary
 protocol, which means that it is not human-readable, but it is also very compact and fast. It is also a very simple
 protocol, which makes it easy to implement. 
 
 Thankfully for our broker, we didn't have to decode the packets ourselves,
 but we could use a library for that. We used [mqtt-v5](https://github.com/bschwind/mqtt-broker) and contributed [some](https://github.com/bschwind/mqtt-broker/pull/49) 
-[patches(https://github.com/bschwind/mqtt-broker/pull/53)] to the source repository as well!
+[patches](https://github.com/bschwind/mqtt-broker/pull/53) to the source repository as well!
 
-## Fuzzing the brokers
-### What is fuzzing?
+# Fuzzing the brokers
+## What is fuzzing?
 The term of fuzzing goes back to the 80s, when it was used to describe the process of sending random data to a program
 to see if it crashes. They discovered bugs in many common Unix programs with this technique. [The paper](https://dl.acm.org/doi/pdf/10.1145/96267.96279) is quite interesting.
 Nowadays, Fuzzers are quite sophisticated and can find bugs in many programs. They use instrumentation to find new paths
 in the program and generate new inputs based on the data they gathered. There are many fuzzers out there, but the most
 popular ones are [AFL++](https://aflplus.plus/) and [Honggfuzz](https://honggfuzz.dev/).
 
-### Let's fuzz!
+## Let's fuzz!
 The project was very simple: Develop a simple MQTT Broker that is secure while also being fast. During the project
 we used fuzzing to find bugs in our code and test the security of the broker. Initially, the plan was to use Honggfuzz, 
 which worked great with our Rust code and our MQTT decoding dependency, but then we had the idea to use it to fuzz other
@@ -223,7 +222,7 @@ The error: Forgetting to set the pointer to NULL after freeing it. This is a com
 to make. I'd like to remind you that these people are professional developers, and they still make these mistakes. So
 don't feel bad if you make them too.
 
-## How can this be prevented?
+# How can this be prevented?
 There are many methods to avoid this bug: 
 - Use an Adress Sanitizer(ASAN) to detect the double free
 - Have an extensive Fuzzing setup although this does not detect every bug of course
@@ -243,7 +242,7 @@ Here are the benchmarks:
 ![Benchmarks](./images/boxplot.png)
 Note here that the average speed was really similar between the native brokers, the full results can be found
 [here](/static/broker_benchmarks.html)
-## Conclusion
+# Conclusion
 So... Rewrite all low-level software in Rust? No, of course not.
 But as [Azure's CTO Mark Russinovich wrote:](https://twitter.com/markrussinovich/status/1571995117233504257)
 
