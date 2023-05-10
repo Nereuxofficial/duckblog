@@ -4,8 +4,8 @@ date = "2023-04-25T14:31:55+02:00"
 author = ""  
 authorTwitter = "" #do not include @  
 cover = ""  
-tags = ["C", "nanomq", "security", "fuzzing"]  
-keywords = ["C", "nanomq", "security", "fuzzing"]  
+tags = ["C", "nanomq", "security", "fuzzing", "rust"]  
+keywords = ["C", "nanomq", "security", "fuzzing", "long"]  
 description = "Discovery of a double free in a C MQTT broker and what can be done about it"  
 showFullContent = false  
 draft = false  
@@ -118,7 +118,7 @@ So I started FUME and let it run with the following brokers:
 And after waiting a while...(and forking [FUME](https://github.com/MCloudTT/FUME-Fuzzing-MQTT-Brokers) to fix some issues)
 ![The crash](./images/crash.jpg)
 ## The Bug
-We found a potential double free in NanoMQ! If you read this far, take some rest. We've come a long way, and the Google 
+We found a potential double free in NanoMQ! If you read this far take some rest. We've come a long way, and the Google 
 Cloud VMs did quite a bit of work for us.
 
 But what is a double free?
@@ -222,26 +222,69 @@ The error: Forgetting to set the pointer to NULL after freeing it. This is a com
 to make. I'd like to remind you that these people are professional developers, and they still make these mistakes. So
 don't feel bad if you make them too.
 
+# Benchmarks
+So how does Rust compare to C in terms of performance? Let's do some benchmarks!
+I found a great benchmarking tool called [mqtt-benchmark](https://github.com/krylovsk/mqtt-benchmark)(compiled using go 
+1.17) and used it to do some benchmarks. Every broker was run with the same configuration:
+- `mqtt-benchmark -clients 25 -count 1000 -size 512 -broker tcp://localhost:1883`
+- Hosted on a c3-highcpu-4 instance on Google Cloud with 4 vCPUs and 8GB of RAM
+This spawns 25 clients, which publish 1000 messages each and measures the time it takes for these to get published to 
+it's subscriber and when the benchmark is done it outputs the results(MCloudTTs results as an example):
+```
+# Results for single clients, left out because it's not really relevant
+========= TOTAL (25) =========
+Total Ratio: 1.000 (25000/25000)
+Total Runtime (sec): 1000.595
+Average Runtime (sec): 1000.594
+Msg time min (ms): 0.038
+Msg time max (ms): 9.120
+Msg time mean mean (ms): 0.429
+Msg time mean std (ms): 0.034
+Average Bandwidth (msg/sec): 0.999
+Total Bandwidth (msg/sec): 24.985
+```
+And made it into a nice boxplot using python with matplotlib:
+```python
+import matplotlib.pyplot as plt
+# Our Data
+message_brokers = ["Mosquitto", "MCloudTT", "NanoMQ", "EMQX", "HiveMQ"]
+msg_times = [
+    [0.029, 2.002, 0.204, 0.008],[0.038, 9.120, 0.429, 0.034],[0.053, 1.703, 0.324, 0.022],[0.071, 2.133, 0.525, 0.015],[0.032, 26.286, 0.184, 0.030]
+]
+# For your eyes
+plt.style.use("dark_background")
+fig, ax = plt.subplots()
+# Add these to the boxplot
+ax.boxplot(msg_times)
+# Label x-axis
+ax.set_xticklabels(message_brokers)
+# Add title and labels
+ax.set_xlabel("Message Brokers")
+ax.set_ylabel("Message Times (ms)")
+ax.set_title("Message Time Distribution of Message Brokers", color="white")
+if __name__ == "__main__":
+    # Save to file
+    plt.savefig("boxplot.png")
+```
+![Benchmarks](./images/boxplot.png)
+However, while it is not even performance oriented or optimised, it is still faster than Brokers written in 
+garbage-collected Languages like Java and is not far behind the C brokers in terms of performance. I'm pretty sure with 
+some optimisations it could be even faster.
+
+You can find the full results [here](/static/broker_benchmarks.html). 
 # How can this be prevented?
-There are many methods to avoid this bug: 
-- Use an Adress Sanitizer(ASAN) to detect the double free
-- Have an extensive Fuzzing setup although this does not detect every bug of course
+There are many methods to avoid this bug:
+- Use an Adress Sanitizer(ASAN) to detect the double free(not reliable)
+- Have an extensive Fuzzing setup(also not reliable)
 - Use a safe subset of C
 - Use a safe language
 
 For me personally, the solution is to use Rust as a safe language with essentially the same speed as C, with a lot of
 safety features built in and great syntax and tooling. But I'm not going to go into that here.
 
-You might've seen that [MCloudTT](https://github.com/mcloudtt/mcloudtt) was also fuzzed and marked as our broker. 
-I am not here to advertise our broker, becauseit is not a replacement for any of the other brokers in comparison. 
+You might've seen that [MCloudTT](https://github.com/mcloudtt/mcloudtt) was also fuzzed and marked as our broker.
+I am not here to advertise our broker, because it is not a replacement for any of the other brokers in comparison.
 It only implements a subset of MQTT v5, is not MQTT v3/v4 compatible and does not support wildcards.
-
-However, while it is not even performance oriented or optimised, it is still faster than Brokers written in 
-garbage-collected Languages like Java and is not performance-wise far behind the C brokers.
-Here are the benchmarks:
-![Benchmarks](./images/boxplot.png)
-Note here that the average speed was really similar between the native brokers, the full results can be found
-[here](/static/broker_benchmarks.html)
 # Conclusion
 So... Rewrite all low-level software in Rust? No, of course not.
 But as [Azure's CTO Mark Russinovich wrote:](https://twitter.com/markrussinovich/status/1571995117233504257)

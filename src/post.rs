@@ -81,13 +81,16 @@ impl Post {
         let mut html = String::new();
         html::push_html(&mut html, parser);
         html = info_span!("Postprocessing").in_scope(|| {
-            html.replace("<ul>", "<ul class=\"list-disc pl-5\">")
+            html.replace("<ul>", "<ul class=\"list-disc pl-5 pb-2\">")
                 .replace("<a ", "<a class=\"text-green-500\"")
                 // TODO: Add overflow-x-auto scrollable whitespace-pre-wrap to code blocks
                 .replace(
                     "<code class=\"",
-                    "<code class=\"whitespace-pre-wrap scrollable overflow-x-auto",
+                    "<code class=\"whitespace-pre-wrap scrollable overflow-x-auto pb-2 ",
                 )
+                // Make headers bigger, add padding below
+                .replace("<h1", "<h1 class=\"text-4xl font-bold pb-2\"")
+                .replace("<h2", "<h2 class=\"text-3xl font-bold pb-2\"")
         });
         Ok(Post {
             // TODO: This could probably be done better
