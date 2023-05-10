@@ -13,7 +13,7 @@ draft = false
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
 for my use cases. But there is another reason: I came from C++, but I never really liked it. I always felt that it was  
 overly complex, and it was really easy to make grave mistakes. In this post I want to show you how I found a double  
-free in NanoMQ, an MQTT broker written in C, and what we can learn from it.
+free in [NanoMQ](https://github.com/emqx/NanoMQ), an MQTT broker written in C, and what we can learn from it.
 
 # Prerequisites
 I tried to keep this post as beginner-friendly as possible. Here is a short list of what you need to know:
@@ -91,7 +91,7 @@ fn main() {
     }
 }
 ```
-Meanwhile, NanoMQ relied on a lot of global state and was not really easy to fuzz and when I finally had written
+Meanwhile, [NanoMQ](https://github.com/emqx/NanoMQ) relied on a lot of global state and was not really easy to fuzz and when I finally had written
 a fuzzing function for it it complained that it didn't run in a multithreaded environment. There was also no guarantee
 that the fuzzing cases could be reproduced, because the packets may be dropped before being decoded there.
 
@@ -109,11 +109,11 @@ for every broker and (at the cost of efficiency) allows you to fuzz any MQTT bro
 security vulnerability in Mosquitto!).
 
 So I started FUME and let it run with the following brokers:
-- MCloudTT(Rust)(our broker)
-- mosquitto(C)
-- NanoMQ(C)
-- EMQX(Erlang)
-- HiveMQ(Java)
+- [MCloudTT](https://github.com/mcloudtt/mcloudtt)(Rust)(our broker)
+- [mosquitto](https://mosquitto.org/)(C)
+- [NanoMQ](https://github.com/emqx/NanoMQ)(C)
+- [EMQX](https://github.com/emqx/emqx)(Erlang)
+- [HiveMQ](https://www.hivemq.com/)(Java)
 
 And after waiting a while...(and forking [FUME](https://github.com/MCloudTT/FUME-Fuzzing-MQTT-Brokers) to fix some issues)
 ![The crash](./images/crash.jpg)
@@ -232,9 +232,9 @@ There are many methods to avoid this bug:
 For me personally, the solution is to use Rust as a safe language with essentially the same speed as C, with a lot of
 safety features built in and great syntax and tooling. But I'm not going to go into that here.
 
-You might've seen that MCloudTT was also fuzzed and marked as our broker. I am not here to advertise our broker, because
-it is not a replacement for any of the other brokers in comparison. It only implements a subset of MQTT v5, is not 
-MQTT v3 compatible and does not support wildcards.
+You might've seen that [MCloudTT](https://github.com/mcloudtt/mcloudtt) was also fuzzed and marked as our broker. 
+I am not here to advertise our broker, becauseit is not a replacement for any of the other brokers in comparison. 
+It only implements a subset of MQTT v5, is not MQTT v3/v4 compatible and does not support wildcards.
 
 However, while it is not even performance oriented or optimised, it is still faster than Brokers written in 
 garbage-collected Languages like Java and is not performance-wise far behind the C brokers.
