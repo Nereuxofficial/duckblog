@@ -79,7 +79,10 @@ impl Post {
         let mut html = String::new();
         html::push_html(&mut html, parser);
         Ok(Post {
-            content: html,
+            // TODO: This could probably be done better
+            content: html
+                .replace("<ul>", "<ul class=\"list-disc pl-5\">")
+                .replace("<a ", "<a class=\"text-green-500\""),
             path: path.replace("index", "").replace("content/", ""),
             metadata,
         })

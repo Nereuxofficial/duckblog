@@ -5,7 +5,7 @@ use liquid::{object, Template};
 use tokio::fs::read_to_string;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
-use tracing::{debug, instrument};
+use tracing::{debug, info_span, instrument};
 #[instrument]
 pub(crate) async fn build_header(post: Option<PostMetadata>) -> String {
     let template = liquid_parse("header.liquid").await;
@@ -26,10 +26,14 @@ pub(crate) async fn liquid_parse(file: impl ToString) -> Template {
     let compiler = liquid::ParserBuilder::with_stdlib()
         .build()
         .expect("Could not build liquid compiler");
-    let file = &read_to_string(format!("liquid/{}", file.to_string()))
-        .await
-        .unwrap();
-    compiler.parse(file).unwrap()
+    let file = info_span!("Reading file")
+        .in_scope(|| async move {
+            read_to_string(format!("liquid/{}", file.to_string()))
+                .await
+                .unwrap()
+        })
+        .await;
+    compiler.parse(&file).unwrap()
 }
 #[instrument(err(Debug))]
 pub(crate) async fn static_file_handler(
