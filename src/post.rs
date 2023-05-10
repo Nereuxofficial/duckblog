@@ -66,7 +66,7 @@ impl Post {
         // Cut metadata from the markdown file and parse it
         let file_metadata = file.split("+++").nth(1).unwrap();
         let mut metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
-        let mut markdown = file.split("+++").nth(2).unwrap();
+        let markdown = file.split("+++").nth(2).unwrap();
         metadata.time_to_read = Some(get_reading_time(markdown));
         metadata.date = chrono::DateTime::parse_from_rfc3339(&metadata.date)?
             .with_timezone(&chrono::Utc)
@@ -74,9 +74,8 @@ impl Post {
             .to_string();
         metadata.images = Self::load_images(&path).await;
         // Before Parsing replace Cool duck sections
-        let parsed_md = Self::cool_duck_replacement(markdown);
-        markdown = parsed_md.as_str();
-        let parser = Parser::new(markdown);
+        let parsed_md = Self::cool_duck_replacement(markdown).await;
+        let parser = Parser::new(parsed_md.as_str());
         let mut html = String::new();
         html::push_html(&mut html, parser);
         Ok(Post {
@@ -110,10 +109,10 @@ impl Post {
         }
     }
     #[instrument]
-    fn cool_duck_replacement(text: &str) -> String {
+    async fn cool_duck_replacement(text: &str) -> String {
         // Match with regex(only linux newline because im not insane) and then parse with liquid
         let re = Regex::new(r"%Coolduck says%\s*((.|\n)*?)\s*%coolduck%").unwrap();
-        let template = liquid_parse("duck.liquid");
+        let template = liquid_parse("duck.liquid").await;
         let result = re.replace_all(text, {
             // Render template with $1
             |caps: &regex::Captures| {

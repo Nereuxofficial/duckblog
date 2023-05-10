@@ -16,9 +16,9 @@ use opentelemetry_otlp::WithExportConfig;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
-use std::fs::read_to_string;
 use std::net::SocketAddr;
 use std::str::FromStr;
+use tokio::fs::read_to_string;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
@@ -170,9 +170,9 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if let Ok(post) = loaded_post {
         let cloned_post = post.clone();
         let template = liquid_parse("post.html.liquid");
-        let header = build_header(Some(post.metadata));
-        let navbar = read_to_string("src/navbar.liquid").unwrap();
-        let footer = read_to_string("src/footer.liquid").unwrap();
+        let header = build_header(Some(post.metadata)).await;
+        let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
+        let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
         // TODO: Cleanup, don't pass in data which is already in metadata
         let globals: Object = object!({
             "post": cloned_post,
@@ -180,7 +180,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
             "navbar": navbar,
             "footer": footer,
         });
-        let markup = template.render(&globals).unwrap();
+        let markup = template.await.render(&globals).unwrap();
         Html(markup).into_response()
     } else {
         debug!("Post not found because: {:#?}", loaded_post);
@@ -194,16 +194,21 @@ async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     if !path.is_empty() {
         posts.retain(|post| post.metadata.tags.iter().any(|tag| tag == &path));
     }
-    let navbar = read_to_string("src/navbar.liquid").unwrap();
-    let footer = read_to_string("src/footer.liquid").unwrap();
+    let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
+    let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
     let template = info_span!("liquid.parse").in_scope(|| liquid_parse("index.html.liquid"));
     let globals: Object = object!({ "posts": posts,
             "navbar": navbar,
             "footer": footer });
-    let markup = info_span!("liquid.render").in_scope(|| template.render(&globals).unwrap());
+    let markup = info_span!("liquid.render")
+        .in_scope(|| async { template.await.render(&globals).unwrap() })
+        .await;
     Html(markup).into_response()
 }
 #[instrument(name = "404")]
 async fn handler_404() -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, Html::from(include_str!("404.html")))
+    (
+        StatusCode::NOT_FOUND,
+        Html::from(include_str!("../liquid/404.html")),
+    )
 }

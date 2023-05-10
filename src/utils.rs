@@ -2,13 +2,13 @@ use crate::post::PostMetadata;
 use axum::body::{boxed, Body, BoxBody};
 use axum::http::{Request, Response, StatusCode, Uri};
 use liquid::{object, Template};
-use std::fs::read_to_string;
+use tokio::fs::read_to_string;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
 use tracing::{debug, instrument};
 #[instrument]
-pub(crate) fn build_header(post: Option<PostMetadata>) -> String {
-    let template = liquid_parse("header.liquid");
+pub(crate) async fn build_header(post: Option<PostMetadata>) -> String {
+    let template = liquid_parse("header.liquid").await;
     let metadata = {
         match post {
             None => PostMetadata::default(),
@@ -22,13 +22,14 @@ pub(crate) fn build_header(post: Option<PostMetadata>) -> String {
     template.render(&globals).unwrap()
 }
 #[instrument(skip(file))]
-pub(crate) fn liquid_parse(file: impl ToString) -> Template {
+pub(crate) async fn liquid_parse(file: impl ToString) -> Template {
     let compiler = liquid::ParserBuilder::with_stdlib()
         .build()
         .expect("Could not build liquid compiler");
-    compiler
-        .parse(&read_to_string(format!("src/{}", file.to_string())).unwrap())
-        .unwrap()
+    let file = &read_to_string(format!("liquid/{}", file.to_string()))
+        .await
+        .unwrap();
+    compiler.parse(file).unwrap()
 }
 #[instrument(err(Debug))]
 pub(crate) async fn static_file_handler(
