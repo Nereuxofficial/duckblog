@@ -5,15 +5,15 @@ author = ""
 authorTwitter = "" #do not include @  
 cover = ""  
 tags = ["C", "nanomq", "security", "fuzzing", "rust"]  
-keywords = ["C", "nanomq", "security", "fuzzing", "long"]  
+keywords = ["C", "nanomq", "security", "fuzzing", "rust", "long"]  
 description = "Discovery of a double free in a C MQTT broker and what can be done about it"  
 showFullContent = false  
 draft = false  
 +++  
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
 for my use cases. But there is another reason: I came from C++, but I never really liked it. I always felt that it was  
-overly complex, and it was really easy to make grave mistakes. In this post I want to show you how I found a double  
-free in [NanoMQ](https://github.com/emqx/NanoMQ), an MQTT broker written in C, and what we can learn from it.
+overly complex([there are incredibly many ways to do intialization](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DZfP4VAK21zc&psig=AOvVaw1sWxCjFHLG6JDCP2_B69oD&ust=1683833901797000&source=images&cd=vfe&ved=2ahUKEwj94PGdwOv-AhW1rycCHeQODLsQr4kDegUIARCLAQ)), 
+and it was really easy to make grave mistakes. In this post I want to show you how I found a double free in [NanoMQ](https://github.com/emqx/NanoMQ), an MQTT broker written in C, what we can learn from it and why i ditched C++.
 
 # Prerequisites
 I tried to keep this post as beginner-friendly as possible. Here is a short list of what you need to know:
@@ -23,7 +23,11 @@ I tried to keep this post as beginner-friendly as possible. Here is a short list
 # Introduction to Undefined Behavior
 Coming from a high-level language like Python or Java, you might not be familiar with the concept of undefined behavior.  
 In C/C++ (and even in unsafe Rust!) you can write code that is not defined by the language. [This allows the compiler to  
-make optimizations that would not be possible otherwise](https://blog.llvm.org/2011/05/what-every-c-programmer-should-know_14.html) and while most C/C++ programmers are aware of this, some of them don't know the full extent of what is and what is not undefined behavior. 
+make optimizations that would not be possible otherwise](https://blog.llvm.org/2011/05/what-every-c-programmer-should-know_14.html).
+Bounds checking is a good example of this. If you have an array of 10 elements and you try to access the 11th element,
+the compiler can assume that this will never happen and optimize the code accordingly(e.g. with [automatic vectorization](https://en.wikipedia.org/wiki/Automatic_vectorization)).
+and while most C/C++ programmers are aware of this, some of them don't know the full extent of what is and what is not 
+undefined behavior. 
 
 For example, the following code is [undefined behavior in C/C++](https://blog.regehr.org/archives/213):
 ```c  
@@ -38,7 +42,8 @@ A simple overflow. And while when you run this code on your machine, it will pro
 do so. However, the compiler is allowed to assume that the value is bigger than 0 and optimize the code  
 accordingly(unless compiled with -fwrapv). And while this is just one example of UB in C/C++, there are many more.  
 Now what happens when the compiler optimizes the code in a way that is not intended by the programmer? Well all 
-garuantees the language gives you are off, so [pretty much everything](https://blog.regehr.org/archives/213).
+garuantees the language gives you are off, so [pretty much everything](https://blog.regehr.org/archives/213). The common
+example here is it [formatting your hard drive](https://stackoverflow.com/questions/18506029/can-undefined-behavior-erase-the-hard-drive).
 
 Here are some other examples of undefined behavior in C/C++:
 - Dividing by 0
@@ -48,8 +53,12 @@ Here are some other examples of undefined behavior in C/C++:
 - Modifying a string literal
 
 Now there are many tools to detect all kinds of UB(the -ftrapv flag, valgrind etc.), but they are not perfect.
-And the larger your codebase gets, the harder it gets to spot this UB and even projects like the Linux kernel with really
-skilled developers and many eyes looking at the code have [memory bugs in them](https://www.linuxkernelcves.com/cves).
+But the nasty thing about it is: It might work perfectly fine, the integer overflow might always wrap to two's complement
+and the program might never crash but on another operating system, with another compiler or even another version of the
+same compiler, it might not. And the larger your codebase gets, the harder it gets to spot this UB. Even projects 
+like the Linux kernel with really skilled developers and many eyes looking at the code have [memory bugs in them](https://www.linuxkernelcves.com/cves).
+
+Anyway, let's get back to the topic at hand: The double free in an MQTT broker. But what is MQTT anyway?
 
 # The MQTT Protocol
 MQTT is a lightweight publish/subscribe messaging protocol, which has many applications in the IoT space. It is a binary
@@ -304,5 +313,5 @@ Bonus: You get a lot of other features like a great package manager, a great bui
 and peace of mind that your software is safe from memory bugs.
 %coolduck%
 
-Thanks, duck! I hope you enjoyed this writeup and learned something from it. If you have any questions, feel free to 
-reach out to me on [Mastodon](https://infosec.exchange/@Nereuxofficial), [Reddit](https://www.reddit.com/user/Nereuxofficial) or [Github](https://github.com/Nereuxofficial/duckblog/issues/new).
+Thanks, duck! I hope you enjoyed this writeup and learned something from it. If you have any questions or feedback, feel 
+free to reach out to me on [Mastodon](https://infosec.exchange/@Nereuxofficial), [Reddit](https://www.reddit.com/user/Nereuxofficial) or [Github](https://github.com/Nereuxofficial/duckblog/issues/new).
