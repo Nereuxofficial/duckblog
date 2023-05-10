@@ -8,7 +8,7 @@ tags = ["C", "nanomq", "security", "fuzzing"]
 keywords = ["C", "nanomq", "security", "fuzzing"]  
 description = "Discovery of a double free in a C MQTT broker and what can be done about it"  
 showFullContent = false  
-draft = true  
+draft = false  
 +++  
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
 for my use cases. But there is another reason: I came from C++, but I never really liked it. I always felt that it was  
