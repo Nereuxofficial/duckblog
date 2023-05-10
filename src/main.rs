@@ -33,6 +33,7 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: Wrapping Code blocks
 // TODO: Large cleanup
 // TODO: Create sitemap.xml
+// TODO: RSS Feed
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
@@ -157,7 +158,7 @@ async fn get_image(path: String) -> impl IntoResponse {
     }
 }
 
-#[instrument(name = "get_post")]
+#[instrument]
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     // FIXME: Dumb workaround for images in posts
     if path.contains("images") {
@@ -187,7 +188,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         handler_404().await.into_response()
     }
 }
-#[instrument(name = "list_posts")]
+#[instrument]
 async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     info!("Listing posts with filter: {:#?}", path);
     let mut posts = Post::parse_all_posts().await.unwrap();

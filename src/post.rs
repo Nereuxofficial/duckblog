@@ -50,6 +50,7 @@ impl Default for PostMetadata {
 impl Post {
     #[instrument(err)]
     pub async fn load(path: String) -> Result<Self> {
+        let path = path.trim_end_matches("/").to_string();
         if File::open(path.clone()).await.is_ok() {
             Self::parse_file(format!("{path}/index")).await
         } else {
@@ -57,9 +58,10 @@ impl Post {
         }
     }
     #[instrument(err)]
-    pub async fn parse_file(path: String) -> Result<Self> {
+    pub async fn parse_file(mut path: String) -> Result<Self> {
         if path.contains("//") {
-            panic!("Path contains double slashes, this is not allowed")
+            warn!("Path {} contains double slashes, this is not allowed", path);
+            path = path.replace("//", "/");
         }
         debug!("Parsing post `{}`", path);
         let file = read_to_string(format!("{path}.md")).await?;
@@ -81,6 +83,11 @@ impl Post {
         html = info_span!("Postprocessing").in_scope(|| {
             html.replace("<ul>", "<ul class=\"list-disc pl-5\">")
                 .replace("<a ", "<a class=\"text-green-500\"")
+                // TODO: Add overflow-x-auto scrollable whitespace-pre-wrap to code blocks
+                .replace(
+                    "<code class=\"",
+                    "<code class=\"whitespace-pre-wrap scrollable overflow-x-auto",
+                )
         });
         Ok(Post {
             // TODO: This could probably be done better

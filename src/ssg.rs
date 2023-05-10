@@ -8,7 +8,8 @@ use std::str::FromStr;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
 use tracing::{info, warn};
-
+// TODO: Fix paths
+// Also: Fuck paths
 const SERVER_URL: &str = "0.0.0.0:8010";
 const FOLDER: &str = "public/";
 pub async fn generate_static_site() {
@@ -98,7 +99,9 @@ async fn save_page_to_path(uri: Uri) {
             .expect("Could not create dir");
         path = big_path.as_str();
     }
-    let mut response = reqwest::get(uri.to_string()).await.unwrap();
+    let mut response = reqwest::get(uri.to_string().trim_end_matches("/"))
+        .await
+        .unwrap();
     if path.ends_with(".html") {
         path = &path[..path.len() - 5];
     }

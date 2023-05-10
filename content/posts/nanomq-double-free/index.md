@@ -96,7 +96,7 @@ a fuzzing function for it it complained that it didn't run in a multithreaded en
 that the fuzzing cases could be reproduced, because the packets may be dropped before being decoded there.
 
 %Coolduck says%
-Why would you create a fuzzing harness for every single Broker(especially with your lacking C knowledge)? 
+Why would you create a fuzzing harness for every single Broker(especially with your rusty C knowledge)? 
 Couldn't you just fuzz a running MQTT broker?
 %coolduck%
 
