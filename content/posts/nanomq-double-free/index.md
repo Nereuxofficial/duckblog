@@ -325,3 +325,6 @@ and peace of mind that your software is safe from memory bugs.
 Thanks, cool duck! I hope you enjoyed this writeup and learned something from it. If you have any questions or feedback, feel 
 free to reach out to me on [Mastodon](https://infosec.exchange/@Nereuxofficial), [Reddit](https://www.reddit.com/user/Nereuxofficial) or [Github](https://github.com/Nereuxofficial/duckblog/issues/new).
 And if you want to support me and my work, you can do so [here](https://github.com/sponsors/Nereuxofficial).
+
+## Credits
+- [mfloto](https://github.com/mfloto) who developed the MQTT Broker with me and helped me keep my sanity reading all the C code
