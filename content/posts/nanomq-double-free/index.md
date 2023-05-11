@@ -301,6 +301,8 @@ It only implements a subset of MQTT v5, is not MQTT v3/v4 compatible and does no
 This bug would not have happened in C++ due to RAII and you could use data types that would have prevented this bug in
 C++, however C++ still has many types of UB(like the integer overflow) and is still really hard to use correctly.
 The newer editions have added some really nice things like unique pointers, but it's still not enough to make it safe.
+I personally ditched it because it was so incredibly complicated and the debugging process was really painful.
+I'm not saying that C++ is bad. If you use it and enjoy it great, keep going! But it's not the language for me.
 
 So... Rewrite all low-level software in Rust? No, of course not.
 But as [Azure's CTO Mark Russinovich wrote:](https://twitter.com/markrussinovich/status/1571995117233504257)
