@@ -8,7 +8,7 @@ use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
 use axum::extract::Path;
 use axum::http::{StatusCode, Uri};
-use axum::response::{Html, IntoResponse, Response};
+use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
 use liquid::{object, Object};
 use new_mime_guess::MimeGuess;
@@ -163,6 +163,10 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     // FIXME: Dumb workaround for images in posts
     if path.contains("images") {
         return get_image(path).await.into_response();
+    }
+    if !path.ends_with("/") {
+        // FIXME: Workaround for wrong image paths
+        return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();
     }
     // Remove trailing slash
     let path = path.trim_end_matches('/');
