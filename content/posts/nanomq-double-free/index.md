@@ -312,5 +312,5 @@ Bonus: You get a lot of other features like a great package manager, a great bui
 and peace of mind that your software is safe from memory bugs.
 %coolduck%
 
-Thanks, duck! I hope you enjoyed this writeup and learned something from it. If you have any questions or feedback, feel 
+Thanks, cool duck! I hope you enjoyed this writeup and learned something from it. If you have any questions or feedback, feel 
 free to reach out to me on [Mastodon](https://infosec.exchange/@Nereuxofficial), [Reddit](https://www.reddit.com/user/Nereuxofficial) or [Github](https://github.com/Nereuxofficial/duckblog/issues/new).
