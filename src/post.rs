@@ -91,6 +91,8 @@ impl Post {
                 // Make headers bigger, add padding below
                 .replace("<h1", "<h1 class=\"text-4xl font-bold pb-2\"")
                 .replace("<h2", "<h2 class=\"text-3xl font-bold pb-2\"")
+                // Center Images using tailwindcss
+                .replace("<img src", "<img class=\"mx-auto\" src")
         });
         Ok(Post {
             // TODO: This could probably be done better

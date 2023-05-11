@@ -11,8 +11,7 @@ showFullContent = false
 draft = false  
 +++
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
-for my use cases. And while that's true, there is a lot more to the story: I came from C++, but I never really liked it. I always felt that it was  
-overly complex([there are incredibly many ways to do intialization](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DZfP4VAK21zc&psig=AOvVaw1sWxCjFHLG6JDCP2_B69oD&ust=1683833901797000&source=images&cd=vfe&ved=2ahUKEwj94PGdwOv-AhW1rycCHeQODLsQr4kDegUIARCLAQ)), 
+for my use cases. And while that's true, there is a lot more to the story: I came from C++, but I never really liked it. I always felt that it was overly complex([there are incredibly many ways to do intialization](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DZfP4VAK21zc&psig=AOvVaw1sWxCjFHLG6JDCP2_B69oD&ust=1683833901797000&source=images&cd=vfe&ved=2ahUKEwj94PGdwOv-AhW1rycCHeQODLsQr4kDegUIARCLAQ)), 
 and it was really easy to make grave mistakes. In this post I want to show you how I found a double free in [NanoMQ](https://github.com/emqx/NanoMQ), an MQTT broker written in C, what we can learn from it and why i ditched C++.
 
 # Prerequisites
@@ -204,7 +203,7 @@ property_free(property *prop)
 ```
 And upon running with valgrind we found that there are also some out of bounds reads in the lines above the free.
 
-So we reached out to the NanoMQ developers(on Github because NanoMQ has no security contact) and they were very quick to
+So we reached out to the NanoMQ developers(via Github issue because NanoMQ has no security contact or Security.md) and they were very quick to
 fix the bug. Here is the fix:
 ```c
 if ((rv = read_uint16(&buf, packet_id)) != MQTT_SUCCESS) {  
