@@ -62,7 +62,9 @@ Anyway, let's get back to the topic at hand: The double free in an MQTT broker. 
 # The MQTT Protocol
 MQTT is a lightweight publish/subscribe messaging protocol, which has many applications in the IoT space. It is a binary
 protocol, which means that it is not human-readable, but it is also very compact and fast. It is also a very simple
-protocol, which makes it easy to implement. 
+protocol, which makes it easy to implement. With the classical MQTT protocol devices communicate via a central broker(just a server).
+For example a device can publish a message to a topic, and all devices that are subscribed to that topic will receive the message.
+The broker is responsible for routing the messages to the correct devices.
 
 Thankfully for our broker, we didn't have to decode the packets ourselves,
 but we could use a library for that. We used [mqtt-v5](https://github.com/bschwind/mqtt-broker) and contributed [some](https://github.com/bschwind/mqtt-broker/pull/49) 
