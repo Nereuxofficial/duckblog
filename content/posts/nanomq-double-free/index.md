@@ -10,6 +10,8 @@ description = "Discovery of a double free in a C MQTT broker and what can be don
 showFullContent = false  
 draft = false  
 +++
+Note: This bug as people pointed out would not have been possible in C++ due to RAII. But i'll get to that in the conclusion.
+
 People often ask me why I use Rust for my projects. I usually answer that I like the language and that it is a good fit  
 for my use cases. And while that's true, there is a lot more to the story: I came from C++, but I never really liked it. I always felt that it was overly complex([there are incredibly many ways to do intialization alone](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DZfP4VAK21zc&psig=AOvVaw1sWxCjFHLG6JDCP2_B69oD&ust=1683833901797000&source=images&cd=vfe&ved=2ahUKEwj94PGdwOv-AhW1rycCHeQODLsQr4kDegUIARCLAQ)), 
 and it was really easy to make grave mistakes. In this post I want to show you how I found a double free in [NanoMQ](https://github.com/emqx/NanoMQ), an MQTT broker written in C, what we can learn from it and why i ditched C++.
@@ -284,7 +286,7 @@ some optimisations it could be even faster.
 You can find the full results [here](/static/broker_benchmarks.html). 
 # How can this be prevented?
 There are many methods to avoid this bug:
-- Use an Adress Sanitizer(ASAN) to detect the double free(not reliable)
+- Use an Adress Sanitizer(ASAN) to detect memory management errors(not reliable)
 - Have an extensive Fuzzing setup(also not reliable)
 - Use a safe subset of C
 - Use a safe language
@@ -296,6 +298,10 @@ You might've seen that [MCloudTT](https://github.com/mcloudtt/mcloudtt) was also
 I am not here to advertise our broker, because it is not a replacement for any of the other brokers in comparison.
 It only implements a subset of MQTT v5, is not MQTT v3/v4 compatible and does not support wildcards.
 # Conclusion
+This bug would not have happened in C++ due to RAII and you could use data types that would have prevented this bug in
+C++, however C++ still has many types of UB(like the integer overflow) and is still really hard to use correctly.
+The newer editions have added some really nice things like unique pointers, but it's still not enough to make it safe.
+
 So... Rewrite all low-level software in Rust? No, of course not.
 But as [Azure's CTO Mark Russinovich wrote:](https://twitter.com/markrussinovich/status/1571995117233504257)
 
