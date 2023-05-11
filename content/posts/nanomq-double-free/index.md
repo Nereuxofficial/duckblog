@@ -80,7 +80,7 @@ popular ones are [AFL++](https://aflplus.plus/) and [Honggfuzz](https://honggfuz
 The project was very simple: Develop a simple MQTT Broker that is secure while also being fast. During the project
 we used fuzzing to find bugs in our code and test the security of the broker. Initially, the plan was to use Honggfuzz, 
 which worked great with our Rust code and our MQTT decoding dependency, but then we had the idea to use it to fuzz other
-fuzzers as well. And while it was really easy to fuzz a function which decodes MQTT packets, passed in as raw bytes, 
+brokers as well. And while it was really easy to fuzz a function which decodes MQTT packets, passed in as raw bytes, 
 which is really easy to fuzz. Here is the code for the function:
 ```rust
 extern crate core;
