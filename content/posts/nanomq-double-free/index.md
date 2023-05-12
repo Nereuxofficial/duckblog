@@ -328,3 +328,5 @@ And if you want to support me and my work, you can do so [here](https://github.c
 
 ## Credits
 - [mfloto](https://github.com/mfloto) who developed the MQTT Broker with me and helped me keep my sanity reading all the C code
+- [bschwind](https://github.com/bschwind) for the mqtt decoding library
+- [PBearson](https://github.com/PBearson/) for the FUME Fuzzer and letting me use it
