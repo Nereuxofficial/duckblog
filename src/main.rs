@@ -98,7 +98,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .route("/tags/:tag", get(list_posts))
             .route(
                 "/about",
-                get(|| async { get_post(Path("../about".to_string())).await }),
+                get(|| async { get_post(Path("../about/".to_string())).await }),
             )
             .route(
                 "/donate",
@@ -164,7 +164,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         return get_image(path).await.into_response();
     }
     if !path.ends_with("/") {
-        // FIXME: Workaround for wrong image paths
+        // Workaround for wrong image paths, breaks /about
         return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();
     }
     // Remove trailing slash
