@@ -35,6 +35,7 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: Large cleanup
 // TODO: Create sitemap.xml
 // TODO: RSS Feed
+// TODO: add tower-livereload
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenvy::dotenv().ok();
@@ -78,44 +79,42 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )
         .init();
     // Define Routes
-    let app = info_span!("route.definitions").in_scope(|| {
-        Router::new()
-            .layer(
-                TraceLayer::new_for_http()
-                    .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
-                    .on_response(DefaultOnResponse::new().level(Level::INFO)),
-            )
-            .route("/posts/*path", get(get_post))
-            .route(
-                "/posts",
-                get(|| async { list_posts(Path(String::new())).await }),
-            )
-            .route("/", get(|| async { list_posts(Path(String::new())).await }))
-            .route(
-                "/index.html",
-                get(|| async { list_posts(Path(String::new())).await }),
-            )
-            .route("/tags/:tag", get(list_posts))
-            .route(
-                "/about",
-                get(|| async { get_post(Path("../about/".to_string())).await }),
-            )
-            .route(
-                "/donate",
-                get(|| async { get_post(Path("../donate".to_string())).await }),
-            )
-            .nest(
-                "/static",
-                Router::new().route("/*uri", get(static_file_handler)),
-            )
-            .route(
-                "/favicon.ico",
-                get(|| async {
-                    static_file_handler(Uri::from_static("https://nereux.blog/favicon.ico")).await
-                }),
-            )
-            .fallback(handler_404)
-    });
+    let app = Router::new()
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+                .on_response(DefaultOnResponse::new().level(Level::INFO)),
+        )
+        .route("/posts/*path", get(get_post))
+        .route(
+            "/posts",
+            get(|| async { list_posts(Path(String::new())).await }),
+        )
+        .route("/", get(|| async { list_posts(Path(String::new())).await }))
+        .route(
+            "/index.html",
+            get(|| async { list_posts(Path(String::new())).await }),
+        )
+        .route("/tags/:tag", get(list_posts))
+        .route(
+            "/about",
+            get(|| async { get_post(Path("../about/".to_string())).await }),
+        )
+        .route(
+            "/donate",
+            get(|| async { get_post(Path("../donate".to_string())).await }),
+        )
+        .nest(
+            "/static",
+            Router::new().route("/*uri", get(static_file_handler)),
+        )
+        .route(
+            "/favicon.ico",
+            get(|| async {
+                static_file_handler(Uri::from_static("https://nereux.blog/favicon.ico")).await
+            }),
+        )
+        .fallback(handler_404);
 
     // run our app with hyper
     let addr = SocketAddr::from(([0, 0, 0, 0], 8010));
