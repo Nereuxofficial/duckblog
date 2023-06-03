@@ -72,7 +72,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // different filter for traces sent to honeycomb
     let trace_filter = Targets::from_str("futile=info")?;
     Registry::default()
-        .with(telemetry)
+        .with(telemetry.with_filter(trace_filter))
         .with(
             tracing_subscriber::fmt::layer()
                 .with_ansi(true)
