@@ -21,7 +21,6 @@ use std::str::FromStr;
 use tokio::fs::read_to_string;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
-use tonic::metadata::MetadataMap;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::*;
 use tracing_subscriber::filter::Targets;
@@ -38,6 +37,7 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: add tower-livereload
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // Read .env
     dotenvy::dotenv().ok();
     // this reports panics
     let _guard = sentry::init((
@@ -48,20 +48,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
         },
     ));
     // OpenTelemetry tracing
-    let mut metadata = MetadataMap::new();
+    let mut metadata = HashMap::new();
     metadata.insert(
-        "x-honeycomb-team",
-        env::var("HONEYCOMB_API_KEY").unwrap().parse()?,
+        "x-honeycomb-team".to_string(),
+        env::var("HONEYCOMB_API_KEY")?.to_string(),
     );
-    metadata.insert("x-honeycomb-dataset", "tonic-test".parse()?);
+    metadata.insert("x-honeycomb-dataset".to_string(), "duckblog".to_string());
     let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
         .with_exporter(
             opentelemetry_otlp::new_exporter()
-                .tonic()
-                .with_metadata(metadata)
-                .with_timeout(std::time::Duration::from_secs(3))
-                .with_endpoint("https://api.honeycomb.io"),
+                .http()
+                .with_endpoint("https://api.honeycomb.io/v1/traces")
+                .with_http_client(reqwest::Client::new())
+                .with_timeout(std::time::Duration::from_secs(2))
+                .with_headers(metadata),
         )
         .install_batch(opentelemetry::runtime::Tokio)?;
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
