@@ -72,9 +72,7 @@ async fn generate_tags() {
     posts
         .iter()
         .map(|post| post.metadata.tags.clone())
-        .for_each(|tag| {
-            tags.extend(tag);
-        });
+        .for_each(|tag| tags.extend(tag.iter().map(|x| x.to_string()).collect::<Vec<String>>()));
     for tag in tags.iter().unique() {
         let uri = format!("http://{}/tags/{}", SERVER_URL, tag);
         save_page_to_path(Uri::from_str(uri.as_str()).unwrap()).await;

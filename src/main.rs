@@ -1,8 +1,10 @@
 mod post;
+mod rss;
 mod ssg;
 mod utils;
 
 use crate::post::Post;
+use crate::rss::serve_rss_feed;
 use crate::ssg::generate_static_site;
 use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
@@ -70,14 +72,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let rust_log_var = std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
     let log_filter = Targets::from_str(&rust_log_var)?;
     // different filter for traces sent to honeycomb
-    let trace_filter = Targets::from_str("futile=info")?;
     Registry::default()
-        .with(telemetry.with_filter(trace_filter))
         .with(
             tracing_subscriber::fmt::layer()
                 .with_ansi(true)
                 .with_filter(log_filter),
         )
+        .with(telemetry)
         .init();
     // Define Routes
     let app = Router::new()
@@ -115,6 +116,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 static_file_handler(Uri::from_static("https://nereux.blog/favicon.ico")).await
             }),
         )
+        .route("/feed.xml", get(serve_rss_feed))
         .fallback(handler_404);
 
     // run our app with hyper

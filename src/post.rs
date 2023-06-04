@@ -2,6 +2,7 @@ use crate::utils::{get_reading_time, liquid_parse};
 use color_eyre::Result;
 use pulldown_cmark::{html, Parser};
 use regex::Regex;
+use rss::{Category, CategoryBuilder, Item as RssItem, ItemBuilder};
 use tokio::fs;
 use tokio::fs::{read_to_string, File};
 use tracing::*;
@@ -15,15 +16,63 @@ pub struct Post {
     pub metadata: PostMetadata,
 }
 
+impl Into<RssItem> for Post {
+    fn into(self) -> RssItem {
+        ItemBuilder::default()
+            .title(Some(self.metadata.title))
+            .link(Some(format!("https://nereux.blog/posts/{}", self.path)))
+            .description(Some(self.metadata.description))
+            .pub_date(Some(self.metadata.date))
+            .categories(
+                self.metadata
+                    .tags
+                    .iter()
+                    .map(|x| {
+                        CategoryBuilder::default()
+                            .name(x.0.clone())
+                            .domain(Some(x.get_url()))
+                            .build()
+                    })
+                    .collect::<Vec<Category>>(),
+            )
+            .build()
+    }
+}
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct Image(String);
+
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+pub struct Tag(pub String);
+impl Tag {
+    pub fn from_str(s: &str) -> Self {
+        Tag(s.to_string())
+    }
+}
+
+impl ToString for Tag {
+    fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl PartialEq<String> for Tag {
+    fn eq(&self, other: &String) -> bool {
+        self.0 == *other
+    }
+}
+
+impl Tag {
+    pub fn get_url(&self) -> String {
+        format!("https://nereux.blog/tags/{}", self.0)
+    }
+}
 
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PostMetadata {
     pub title: String,
     /// Data in RFC3339 format (2021-08-23T22:19:48+02:00)
     pub date: String,
-    pub tags: Vec<String>,
+    pub tags: Vec<Tag>,
     pub keywords: Vec<String>,
     pub draft: Option<bool>,
     pub description: String,
@@ -36,7 +85,7 @@ impl Default for PostMetadata {
         PostMetadata {
             title: "DuckBlog".to_string(),
             date: "2021-08-23T22:19:48+02:00".to_string(),
-            tags: vec!["Duck".to_string(), "Blog".to_string()],
+            tags: vec![Tag::from_str("Duck"), Tag::from_str("Blog")],
             keywords: vec!["Duck".to_string(), "Blog".to_string()],
             draft: Some(false),
             description: "Nereuxofficial's blog about mostly Rust".to_string(),
