@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut metadata = HashMap::new();
     metadata.insert(
         "x-honeycomb-team".to_string(),
-        env::var("HONEYCOMB_API_KEY")?.to_string(),
+        env::var("HONEYCOMB_API_KEY")?,
     );
     metadata.insert("x-honeycomb-dataset".to_string(), "duckblog".to_string());
     let tracer = opentelemetry_otlp::new_pipeline()
@@ -80,6 +80,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )
         .with(telemetry)
         .init();
+
+    // Trace executed code
+    tracing::subscriber::with_default(Registry::default(), || {
+        // Spans will be sent to the configured OpenTelemetry exporter
+        let root = span!(tracing::Level::TRACE, "app_start", work_units = 2);
+        let _enter = root.enter();
+    });
     // Define Routes
     let app = Router::new()
         .layer(

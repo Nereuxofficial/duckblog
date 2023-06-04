@@ -29,6 +29,9 @@ pub async fn generate_static_site() {
         .await;
     save_page_to_path(Uri::from_str(format!("http://{}/posts", SERVER_URL).as_str()).unwrap())
         .await;
+    // Rss feed
+    save_page_to_path(Uri::from_str(format!("http://{}/feed.xml", SERVER_URL).as_str()).unwrap())
+        .await;
     copy_post_images().await;
     info!("Static site generated");
     exit(0);
