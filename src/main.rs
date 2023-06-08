@@ -35,7 +35,6 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: Wrapping Code blocks
 // TODO: Large cleanup
 // TODO: Create sitemap.xml
-// TODO: RSS Feed
 // TODO: add tower-livereload
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -127,7 +126,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .fallback(handler_404);
 
     // run our app with hyper
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8010));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8010));
     info!("listening on http://{}", addr);
     if std::env::args().any(|arg| arg == "--ssg") {
         if cfg!(debug_assertions) {
