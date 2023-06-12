@@ -15,6 +15,8 @@ use axum::{routing::get, Router};
 use liquid::{object, Object};
 use new_mime_guess::MimeGuess;
 use opentelemetry_otlp::WithExportConfig;
+use tower::limit::{ConcurrencyLimitLayer, ConcurrencyLimit};
+use tower::timeout::Timeout;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
@@ -134,8 +136,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         tokio::spawn(generate_static_site());
     }
+    let concurrency_limit = ConcurrencyLimit::new(app.into_make_service(), 2500);
+    let timeout =  Timeout::new(concurrency_limit, std::time::Duration::from_secs(5));
     axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+        .serve(timeout)
         .await
         .unwrap();
     Ok(())
