@@ -17,7 +17,7 @@ chrono = "0.4.23"
 toml = "0.7.2"
 tower-http = {version = "0.4.0", features = ["fs", "trace"]}
 axum-extra = {version= "0.5.0", features = ["spa"]}
-tower = {version = "0.4.13", features = ["limit"]}
+tower = {version = "0.4.13", features = ["full"]}
 base64 = "0.21.0"
 image = "0.24.5"
 new_mime_guess = "4.0.1"

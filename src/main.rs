@@ -15,8 +15,6 @@ use axum::{routing::get, Router};
 use liquid::{object, Object};
 use new_mime_guess::MimeGuess;
 use opentelemetry_otlp::WithExportConfig;
-use tower::limit::{ConcurrencyLimitLayer, ConcurrencyLimit};
-use tower::timeout::Timeout;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
@@ -25,6 +23,8 @@ use std::str::FromStr;
 use tokio::fs::read_to_string;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
+use tower::limit::ConcurrencyLimit;
+use tower::timeout::Timeout;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::*;
 use tracing_subscriber::filter::Targets;
@@ -32,7 +32,8 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
 
-// TODO: Tables don't get processed properly
+// TODO: Tables don't get processed properly. Maybe look into pulldown_cmark tables
+// TODO: Remove file processing at runtime to improve response times
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks
 // TODO: Large cleanup
@@ -137,11 +138,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         tokio::spawn(generate_static_site());
     }
     let concurrency_limit = ConcurrencyLimit::new(app.into_make_service(), 2500);
-    let timeout =  Timeout::new(concurrency_limit, std::time::Duration::from_secs(5));
-    axum::Server::bind(&addr)
-        .serve(timeout)
-        .await
-        .unwrap();
+    let timeout = Timeout::new(concurrency_limit, std::time::Duration::from_secs(5));
+    axum::Server::bind(&addr).serve(timeout).await.unwrap();
     Ok(())
 }
 

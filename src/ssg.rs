@@ -14,11 +14,11 @@ const SERVER_URL: &str = "0.0.0.0:8010";
 const FOLDER: &str = "public/";
 pub async fn generate_static_site() {
     // Delete previous files
-    fs::remove_dir_all(FOLDER).await;
+    let _ = fs::remove_dir_all(FOLDER).await;
     // Create our folders
-    fs::create_dir("public/").await;
-    fs::create_dir("public/tags").await;
-    fs::create_dir("public/posts").await;
+    let _ = fs::create_dir("public/").await;
+    let _ = fs::create_dir("public/tags").await;
+    let _ = fs::create_dir("public/posts").await;
     generate_posts().await;
     copy_static_files().await;
     generate_404().await;
