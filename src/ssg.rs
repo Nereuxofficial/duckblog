@@ -7,10 +7,10 @@ use std::process::exit;
 use std::str::FromStr;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
-use tracing::{info, warn};
+use tracing::{info, warn, debug};
 // TODO: Fix paths
 // Also: Fuck paths
-const SERVER_URL: &str = "0.0.0.0:8010";
+const SERVER_URL: &str = "127.0.0.1:8010";
 const FOLDER: &str = "public/";
 pub async fn generate_static_site() {
     // Delete previous files
@@ -19,6 +19,13 @@ pub async fn generate_static_site() {
     let _ = fs::create_dir("public/").await;
     let _ = fs::create_dir("public/tags").await;
     let _ = fs::create_dir("public/posts").await;
+    // Wait until the site is up
+    while reqwest::get(format!("http://{}/", SERVER_URL))
+        .await
+        .is_err()
+    {
+        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+    }
     generate_posts().await;
     copy_static_files().await;
     generate_404().await;
@@ -64,8 +71,9 @@ async fn generate_posts() {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
     let posts = Post::parse_all_posts().await.unwrap();
+    debug!("Found posts: {}", posts.iter().map(|x| x.path.clone()).join(", "));
     for post in posts {
-        let uri = format!("http://{}/{}", SERVER_URL, post.path);
+        let uri = format!("http://{}{}", SERVER_URL, post.path);
         save_page_to_path(Uri::from_str(uri.as_str()).unwrap()).await;
     }
 }

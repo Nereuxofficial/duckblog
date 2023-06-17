@@ -39,6 +39,7 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: Large cleanup
 // TODO: Create sitemap.xml
 // TODO: add tower-livereload
+// TODO: Push pages into Cloudflare R2 storage and cache them in memory, refreshing them every 5 minutes
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
