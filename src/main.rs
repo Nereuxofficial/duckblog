@@ -12,6 +12,7 @@ use axum::extract::Path;
 use axum::http::{StatusCode, Uri};
 use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
+use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer};
 use liquid::{object, Object};
 use new_mime_guess::MimeGuess;
 use opentelemetry_otlp::WithExportConfig;
@@ -127,12 +128,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }),
         )
         .route("/feed.xml", get(serve_rss_feed))
+        // include trace context as header into the response
+        .layer(OtelInResponseLayer::default())
+        //start OpenTelemetry trace on incoming request
+        .layer(OtelAxumLayer::default())
         .fallback(handler_404);
 
     // run our app with hyper
     let addr = SocketAddr::from(([127, 0, 0, 1], 8010));
     info!("listening on http://{}", addr);
-    if std::env::args().any(|arg| arg == "--ssg") {
+    if env::args().any(|arg| arg == "--ssg") {
         if cfg!(debug_assertions) {
             warn!("You are running the SSG in debug mode. This is not recommended.");
         }
