@@ -7,7 +7,7 @@ use std::process::exit;
 use std::str::FromStr;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
-use tracing::{info, warn, debug};
+use tracing::{debug, info, warn};
 // TODO: Fix paths
 // Also: Fuck paths
 const SERVER_URL: &str = "127.0.0.1:8010";
@@ -71,7 +71,10 @@ async fn generate_posts() {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
     let posts = Post::parse_all_posts().await.unwrap();
-    debug!("Found posts: {}", posts.iter().map(|x| x.path.clone()).join(", "));
+    debug!(
+        "Found posts: {}",
+        posts.iter().map(|x| x.path.clone()).join(", ")
+    );
     for post in posts {
         let uri = format!("http://{}{}", SERVER_URL, post.path);
         save_page_to_path(Uri::from_str(uri.as_str()).unwrap()).await;
@@ -108,7 +111,7 @@ async fn save_page_to_path(uri: Uri) {
             .expect("Could not create dir");
         path = big_path.as_str();
     }
-    let mut response = reqwest::get(uri.to_string().trim_end_matches("/"))
+    let mut response = reqwest::get(uri.to_string().trim_end_matches('/'))
         .await
         .unwrap();
     if path.ends_with(".html") {
