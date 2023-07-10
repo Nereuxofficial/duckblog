@@ -6,12 +6,12 @@ tags= ["futures", "async", "tokio", "rust"]
 keywords= ["rust", "async", "futures"]
 draft = true
 +++
-Imagine going to a restaurant. After a few minutes the waiter comes to you and asks you whether you've decided what to order yet. You think a bit and respond with ,,I am not ready to order yet" and after a while he asks you again and the you say after further thinking: "Here's my order: A plate of whimsical unicorn-shaped spaghetti!". That is, in a very simplified way, how futures work.
+Imagine going to a restaurant. After a few minutes the waiter comes to you and asks you whether you've decided what to order yet. You think a bit and respond with "I am not ready to order yet" and after a while he asks you again and the you say after further thinking: "Here's my order: A plate of whimsical unicorn-shaped spaghetti!". That is, in a very simplified way, how futures work in Rust.
 
 ## Code
 Now we implement the example. We set up the project with these commands:
 ```bash
-# Make a new binary
+# Make a new binary project
 cargo new futuristic_restaurant
 cd futuristic_restaurant
 # For logging
