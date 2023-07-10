@@ -98,14 +98,14 @@ warning: unused implementer of `Future` that must be used
 ```
 Oh no, where has our Future gone? 
 
-%coolduck%
+%Coolduck says%
 It was dropped. You can see in the Output that that guest nothing unless you either poll it or await it(where the executor polls it until it is ready). In fact that is the only way for a Future to do anything. With poll you ask the function whether it is ready(like the guest being ready to order) and it returns the Poll. Awaiting polls something as long as it is ready.
 %coolduck%
 
 And we can print when he leaves using this:
 ```rust
 /// The Drop Trait is typically implemented for Data that needs to do extra work on Cleanup(like many heap allocated things like Vec, Box etc.)
-/// It is called automatically when an object goes out of scope, a core part of RAII
+/// It is called automatically when an object goes out of scope, a core part of RAII(Resource Acquisition Is Initialization)
 impl Drop for Guest{
 	fn drop(&mut self) {
         println!("I'm leaving... I've been sitting here for hours");
