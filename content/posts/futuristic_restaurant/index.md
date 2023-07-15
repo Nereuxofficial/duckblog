@@ -4,7 +4,7 @@ description = "A simple analogy for how futures work in Rust"
 date = "2023-07-10T20:15:55+02:00"
 tags= ["futures", "async", "tokio", "rust"]
 keywords= ["rust", "async", "futures"]
-draft = true
+draft = false
 +++
 Imagine going to a restaurant. After a few minutes the waiter comes to you and asks you whether you've decided what to order yet. You think a bit and respond with "I am not ready to order yet" and after a while he asks you again and the you say after further thinking: "Here's my order: A plate of whimsical unicorn-shaped spaghetti!". That is, in a very simplified way, how futures work in Rust.
 

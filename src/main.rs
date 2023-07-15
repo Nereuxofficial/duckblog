@@ -40,7 +40,7 @@ use tracing_subscriber::{Layer, Registry};
 // TODO: Large cleanup
 // TODO: Create sitemap.xml
 // TODO: add tower-livereload
-// TODO: Push pages into Cloudflare R2 storage and cache them in memory, refreshing them every 5 minutes. Maybe also something else. Just another method of updating the articles
+// TODO: Cache Posts in Memory
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
@@ -179,7 +179,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if path.contains("images") {
         return get_image(path).await.into_response();
     }
-    if !path.ends_with("/") {
+    if !path.ends_with('/') {
         // Workaround for wrong image paths, breaks /about
         return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();
     }
