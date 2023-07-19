@@ -160,6 +160,7 @@ async fn main() {
 }
 ```
 And now we have a concurrent, single-threaded webserver. Note that in production we would want to have tokio spawn multiple threads(via `tokio::main`) that can work off multiple tasks concurrently.
+But types in tasks have to implement Send (and sometimes even Sync) which can be more difficult because it may move between threads(Because in our analogy the now multiple waiters would have to pass information over). 
 
 Enjoy your food!
 ![Unicorn shaped spaghetti](images/unicorn-shaped-spagetthi.png)
