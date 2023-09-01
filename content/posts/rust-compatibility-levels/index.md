@@ -7,7 +7,7 @@ description = "From microcontrollers to full-blown Linux systems, Rust has you c
 draft = false
 showFullContent = false
 +++
-Rust is a general-purpose language, as such it can be used in a variety of environments going from bare-metal microcontrollers([as previously explored here](https://nereux.blog/posts/esp32-ws2812-dino-light-2/)) to Linux systems with many Layers of abstractions.
+Rust is a general-purpose language, as such it can be used in a variety of environments going from bare-metal microcontrollers([as previously explored here](https://nereux.blog/posts/esp32-ws2812-dino-light-2/)) to Linux systems with many layers of abstractions.
 As such the libraries developed for it sometimes may or may not work in different environments, depending on what they use.
 
 
@@ -33,6 +33,9 @@ Different libraries support different levels of compatibility, and often allow r
 And it has to be said that no library author is obliged to support any of these levels, but it's nice if they do, as I found out [while playing around with ESP32 microcontrollers](https://nereux.blog/posts/esp32-ws2812-dino-light/). And if you are designing a library, it might be worth considering supporting some of these layers, as it makes your library more versatile and thus more useful, and also mentioning it clearly in the README.
 
 Rust also has a [list of targets](https://doc.rust-lang.org/rustc/platform-support.html) along with what they support.
+
+And here is the entire content of the article in a simple graphic you can download and share(created using the excellent Excalidraw):
+![Rust Library Compatibility Levels](images/rust-compatibility-levels.png)
 
 I hope this was helpful to you, if you have any questions or suggestions feel free to [contact me](https://nereux.blog/contact/).
 And if you want to support me and my work, you can do so [here](https://github.com/sponsors/Nereuxofficial).

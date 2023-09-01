@@ -37,6 +37,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
 
 pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
+pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
 
 // TODO: Tables don't get processed properly. Maybe look into pulldown_cmark tables
 // TODO: Remove file processing at runtime to improve response times
@@ -96,17 +97,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let root = span!(tracing::Level::TRACE, "app_start", work_units = 2);
         let _enter = root.enter();
     });
-    // Initiate Cache
+    // Initiate Caches
     POST_CACHE
         .set(
             Cache::builder()
                 .initial_capacity(100)
-                .max_capacity(1000)
+                .max_capacity(10000)
                 .time_to_live(Duration::from_secs(60 * 30))
                 .time_to_idle(Duration::from_secs(60 * 10))
                 .build(),
         )
         .unwrap();
+    IMAGE_CACHE
+        .set(
+            Cache::builder()
+                .initial_capacity(50)
+                .max_capacity(10000)
+                .time_to_live(Duration::from_secs(60 * 60))
+                .time_to_idle(Duration::from_secs(60 * 30))
+                .build(),
+        )
+        .unwrap();
+
     // Define Routes
     let app = Router::new()
         .layer(
@@ -165,13 +177,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[instrument]
 async fn get_image(path: String) -> impl IntoResponse {
     debug!("Image `{}` requested", path);
+    // Check if in cache otherwise load from disk
+    if let Some(image) = IMAGE_CACHE.get().unwrap().get(&path).await {
+        debug!("Image `{}` loaded from cache", path);
+        return Response::builder()
+            .header(
+                "Content-Type",
+                MimeGuess::from_path(&path)
+                    .first_or_octet_stream()
+                    .to_string(),
+            )
+            .body(Body::from(image))
+            .unwrap()
+            .into_response();
+    }
     if let Ok(mut file) = File::open(format!("content/posts/{path}")).await {
         let mut buffer = vec![];
         file.read_to_end(&mut buffer)
             .await
             .expect("Could not read image");
+        IMAGE_CACHE
+            .get()
+            .unwrap()
+            .insert(path.clone(), buffer.clone())
+            .await;
 
         // Return the image with the right mime type
         Response::builder()
