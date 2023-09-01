@@ -14,6 +14,7 @@ use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
 use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer};
 use liquid::{object, Object};
+use moka::future::Cache;
 use new_mime_guess::MimeGuess;
 use opentelemetry_otlp::WithExportConfig;
 use std::collections::HashMap;
@@ -21,6 +22,8 @@ use std::env;
 use std::error::Error;
 use std::net::SocketAddr;
 use std::str::FromStr;
+use std::sync::OnceLock;
+use std::time::Duration;
 use tokio::fs::read_to_string;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
@@ -32,6 +35,8 @@ use tracing_subscriber::filter::Targets;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
+
+pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
 
 // TODO: Tables don't get processed properly. Maybe look into pulldown_cmark tables
 // TODO: Remove file processing at runtime to improve response times
@@ -91,6 +96,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let root = span!(tracing::Level::TRACE, "app_start", work_units = 2);
         let _enter = root.enter();
     });
+    // Initiate Cache
+    POST_CACHE
+        .set(
+            Cache::builder()
+                .initial_capacity(100)
+                .max_capacity(1000)
+                .time_to_live(Duration::from_secs(60 * 30))
+                .time_to_idle(Duration::from_secs(60 * 10))
+                .build(),
+        )
+        .unwrap();
     // Define Routes
     let app = Router::new()
         .layer(

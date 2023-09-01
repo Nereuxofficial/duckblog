@@ -10,7 +10,9 @@ use tokio::io::AsyncWriteExt;
 use tracing::{debug, info, warn};
 // TODO: Fix paths
 // Also: Fuck paths
-const SERVER_URL: &str = "127.0.0.1:8010";
+
+// Has to end with a /
+const SERVER_URL: &str = "127.0.0.1:8010/";
 const FOLDER: &str = "public/";
 pub async fn generate_static_site() {
     // Delete previous files

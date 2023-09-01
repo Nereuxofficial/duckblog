@@ -1,4 +1,6 @@
 use crate::utils::{get_reading_time, liquid_parse};
+use crate::POST_CACHE;
+use color_eyre::eyre::Error;
 use color_eyre::Result;
 use pulldown_cmark::{html, Parser};
 use regex::Regex;
@@ -97,14 +99,52 @@ impl Default for PostMetadata {
 }
 
 impl Post {
+    #[cfg(debug_assertions)]
     #[instrument(err)]
     pub async fn load(path: String) -> Result<Self> {
+        Self::non_cached_load(path).await
+    }
+
+    #[cfg(not(debug_assertions))]
+    #[instrument(err)]
+    pub async fn load(path: String) -> Result<Self> {
+        // Use cache
+        let cache = POST_CACHE.get().unwrap().clone();
+        let post_cache_hit = cache.get(&path).await;
+        if let Some(post) = post_cache_hit {
+            debug!("Cache hit for `{}`", path);
+            return Ok(post);
+        } else {
+            let post = Self::non_cached_load(path.clone()).await?;
+            cache.insert(path, post.clone()).await;
+            return Ok(post);
+        }
+    }
+
+    #[instrument(err)]
+    async fn non_cached_load(path: String) -> Result<Self> {
         let path = path.trim_end_matches("/").to_string();
         if File::open(path.clone()).await.is_ok() {
             Self::parse_file(format!("{path}/index")).await
         } else {
             Self::parse_file(path).await
         }
+    }
+
+    #[instrument(err)]
+    async fn extract_metadata(raw_text: &mut String) -> Result<PostMetadata> {
+        if raw_text.contains("+++") {
+            let file_metadata = raw_text.split("+++").nth(1).unwrap();
+            let mut metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
+            metadata.time_to_read = Some(get_reading_time(raw_text));
+            metadata.date = chrono::DateTime::parse_from_rfc3339(&metadata.date)?
+                .with_timezone(&chrono::Utc)
+                .date_naive()
+                .to_string();
+            raw_text.replace_range(0..file_metadata.len() + 6, "");
+            return Ok(metadata);
+        }
+        Err(Error::msg("No metadata found"))
     }
     #[instrument(err)]
     pub async fn parse_file(mut path: String) -> Result<Self> {
@@ -113,19 +153,12 @@ impl Post {
             path = path.replace("//", "/");
         }
         debug!("Parsing post `{}`", path);
-        let file = read_to_string(format!("{path}.md")).await?;
+        let mut file = read_to_string(format!("{path}.md")).await?;
         // Cut metadata from the markdown file and parse it
-        let file_metadata = file.split("+++").nth(1).unwrap();
-        let mut metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
-        let markdown = file.split("+++").nth(2).unwrap();
-        metadata.time_to_read = Some(get_reading_time(markdown));
-        metadata.date = chrono::DateTime::parse_from_rfc3339(&metadata.date)?
-            .with_timezone(&chrono::Utc)
-            .date_naive()
-            .to_string();
+        let mut metadata = Self::extract_metadata(&mut file).await?;
         metadata.images = Self::load_images(&path).await;
         // Before Parsing replace Cool duck sections
-        let parsed_md = Self::cool_duck_replacement(markdown).await;
+        let parsed_md = Self::cool_duck_replacement(&file).await;
         let parser = Parser::new(parsed_md.as_str());
         let mut html = String::new();
         html::push_html(&mut html, parser);
