@@ -9,7 +9,6 @@ use tokio::fs;
 use tokio::fs::{read_to_string, File};
 use tracing::*;
 
-// TODO: Cache Posts
 // TODO: Work out issues with pathing
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct Post {
