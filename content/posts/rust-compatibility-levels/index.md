@@ -22,7 +22,7 @@ So let's go **lower** and lower in terms of features and abstractions, but **hig
 - [**WASM**](https://www.rust-lang.org/what/wasm)(Webassembly, most commonly seen in Browsers)
   - Most commonly used for games in browsers, but it's a binary format which is very portable, which explains the browser use case
   - You can even use network operations!(Threading for example is limited though)
-- [**no-std + alloc**](https://docs.rust-embedded.org/book/intro/no-std.html)(Many Microcontrollers + PC)
+- [**no-std + alloc**](https://docs.rust-embedded.org/book/intro/no-std.html)(Many Microcontrollers)
 	- like no-std but with allocations, which helps a lot for e.g. Vectors
 - [**no-std**](https://docs.rust-embedded.org/book/intro/no-std.html)(Runs even on the smallest of microcontrollers, when you're writing bare-metal code with minimal abstractions)
 	- `#[no_std]` ensures no standard library(except for the platform-agnostic [core](https://doc.rust-lang.org/core/) part) is used. Crates have to be marked as `#![no_std]` to be used in this mode.
@@ -34,8 +34,8 @@ And it has to be said that no library author is obliged to support any of these 
 
 Rust also has a [list of targets](https://doc.rust-lang.org/rustc/platform-support.html) along with what they support.
 
-And here is the entire content of the article in a simple graphic you can download and share(created using the excellent Excalidraw):
+And are the levels mentioned in the article in a simple graphic you can download and share(created using the excellent [Excalidraw](https://excalidraw.com/)):
 ![Rust Library Compatibility Levels](images/rust-compatibility-levels.png)
 
-I hope this was helpful to you, if you have any questions or suggestions feel free to [contact me](https://nereux.blog/contact/).
+I hope this was informative to you. If you have any questions or suggestions feel free to [contact me](https://nereux.blog/contact/).
 And if you want to support me and my work, you can do so [here](https://github.com/sponsors/Nereuxofficial).

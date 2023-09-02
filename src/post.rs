@@ -1,5 +1,4 @@
 use crate::utils::{get_reading_time, liquid_parse};
-use crate::POST_CACHE;
 use color_eyre::eyre::Error;
 use color_eyre::Result;
 use pulldown_cmark::{html, Parser};
