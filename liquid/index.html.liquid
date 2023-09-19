@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta robots="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@1.x.x/dist/tailwind.min.css">
     <title>Nereuxofficial's Blog</title>
     <style>
@@ -21,9 +23,9 @@
 
 <body class="bg-gray-900 text-gray-300">
 {{ navbar }}
-
+<div style="height: 80px"></div>
 <!-- The Blog Text -->
-<div class="container mx-auto" style="padding-top: 100px">
+<div class="container mx-auto p-12">
     {% for post in posts %}
         <div class="text-center">
             <h2 class="text-4xl font-bold text-green-200"> <a href="/{{ post.path }}"> {{ post.metadata.title }}</a></h2>
