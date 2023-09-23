@@ -1,6 +1,6 @@
 +++  
 title = "How NanoMQ had a double free and what we can learn from it"  
-date = "2023-04-25T14:31:55+02:00"  
+date = "2023-04-25"  
 author = ""  
 authorTwitter = "" #do not include @  
 cover = ""  

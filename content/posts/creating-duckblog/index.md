@@ -1,6 +1,6 @@
 +++
 title = "Creating Duckblog"
-date = "2023-02-09T09:52:49+01:00"
+date = "2023-02-09"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""

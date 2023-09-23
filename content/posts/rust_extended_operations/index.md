@@ -1,6 +1,6 @@
 +++
 title = "Rust extended operations"
-date = "2022-10-09T21:31:55+02:00"
+date = "2022-10-09"
 tags = ["rust", "programming"]
 keywords = ["rust"]
 draft = true

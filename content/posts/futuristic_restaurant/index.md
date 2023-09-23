@@ -1,7 +1,7 @@
 +++
 title = "Futuristic Restaurant"
 description = "A simple analogy for how futures work in Rust"
-date = "2023-07-10T20:15:55+02:00"
+date = "2023-07-10"
 tags= ["futures", "async", "tokio", "rust"]
 keywords= ["rust", "async", "futures"]
 draft = false

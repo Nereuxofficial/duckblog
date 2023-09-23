@@ -1,6 +1,6 @@
 +++
 title = "Lichess Elite Analysis"
-date = "2021-09-12T21:31:55+02:00"
+date = "2021-09-12"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""

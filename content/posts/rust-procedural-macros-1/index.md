@@ -1,6 +1,6 @@
 +++
 title = "Making Code writing Code"
-date = "2022-10-09T21:31:55+02:00"
+date = "2022-10-09"
 tags = ["rust", "programming", "macros"]
 keywords = ["rust", "programming", "macros"]
 description = "An Introduction to procedural macros in Rust"

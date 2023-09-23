@@ -1,6 +1,6 @@
 +++
 title= "About"
-date= "2021-09-12T22:08:05+02:00"
+date= "2021-09-12"
 tags= []
 keywords= []
 description= "About the author"

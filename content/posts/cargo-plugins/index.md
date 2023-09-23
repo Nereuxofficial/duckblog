@@ -1,6 +1,6 @@
 +++
 title = "Cargo Plugins"
-date = "2021-08-12T21:31:55+02:00"
+date = "2021-08-12"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""

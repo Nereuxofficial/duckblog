@@ -1,6 +1,6 @@
 +++
 title = "Making a Dino Light with the ESP32 and WS2812"
-date = "2022-03-05T21:31:55+02:00"
+date = "2022-03-05"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""

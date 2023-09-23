@@ -1,7 +1,7 @@
 +++
 title = "Rust Library Compatibility Levels"
-date = "2023-09-01T21:31:55+02:00"
-tags = ["rust", "programming", "library", "crate", "compatibility"]
+date = "2023-09-01"
+tags = ["rust", "crate", "compatibility"]
 keywords = ["rust", "programming"]
 description = "From microcontrollers to full-blown Linux systems, Rust has you covered!"
 draft = false
@@ -11,7 +11,7 @@ Rust is a general-purpose language, as such it can be used in a variety of envir
 As such the libraries developed for it sometimes may or may not work in different environments, depending on what they use.
 
 
-So let's go **lower** and lower in terms of features and abstractions, but **higher** in terms of compatibility:
+So let's go **lower** in terms of features and abstractions, but **higher** in terms of compatibility:
 - [**std**](https://doc.rust-lang.org/std/)(PCs, some microcontrollers)
 	- 'std' stands for standard library and is Rusts default library offering many useful data structures and Abstractions going from [Strings](https://doc.rust-lang.org/std/string/index.html) to [TCPStreams](https://doc.rust-lang.org/std/net/struct.TcpStream.html)
 	- The default Rust run mode(If you've ever written "Hello World" in Rust you used it)

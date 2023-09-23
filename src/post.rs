@@ -1,5 +1,7 @@
 use crate::utils::{get_reading_time, liquid_parse};
+#[allow(unused_imports)]
 use crate::POST_CACHE;
+use chrono::NaiveDate;
 use color_eyre::eyre::Error;
 use color_eyre::Result;
 use pulldown_cmark::{html, Parser};
@@ -23,7 +25,7 @@ impl Into<RssItem> for Post {
             .title(Some(self.metadata.title))
             .link(Some(format!("https://nereux.blog/posts/{}", self.path)))
             .description(Some(self.metadata.description))
-            .pub_date(Some(self.metadata.date))
+            .pub_date(Some(self.metadata.date.to_string()))
             .categories(
                 self.metadata
                     .tags
@@ -72,7 +74,7 @@ impl Tag {
 pub struct PostMetadata {
     pub title: String,
     /// Data in RFC3339 format (2021-08-23T22:19:48+02:00)
-    pub date: String,
+    pub date: NaiveDate,
     pub tags: Vec<Tag>,
     pub keywords: Vec<String>,
     pub draft: Option<bool>,
@@ -85,7 +87,7 @@ impl Default for PostMetadata {
     fn default() -> Self {
         PostMetadata {
             title: "DuckBlog".to_string(),
-            date: "2021-08-23T22:19:48+02:00".to_string(),
+            date: "2021-08-23".parse::<NaiveDate>().unwrap(),
             tags: vec![Tag::from_str("Duck"), Tag::from_str("Blog")],
             keywords: vec!["Duck".to_string(), "Blog".to_string()],
             draft: Some(false),
@@ -136,10 +138,6 @@ impl Post {
             let file_metadata = raw_text.split("+++").nth(1).unwrap();
             let mut metadata: PostMetadata = toml::from_str(file_metadata.trim())?;
             metadata.time_to_read = Some(get_reading_time(raw_text));
-            metadata.date = chrono::DateTime::parse_from_rfc3339(&metadata.date)?
-                .with_timezone(&chrono::Utc)
-                .date_naive()
-                .to_string();
             raw_text.replace_range(0..file_metadata.len() + 6, "");
             return Ok(metadata);
         }

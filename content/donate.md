@@ -1,6 +1,6 @@
 +++
 title= "Donate"
-date= "2021-09-12T22:08:05+02:00"
+date= "2021-09-12"
 tags= []
 keywords= []
 description= "Donate to support me"

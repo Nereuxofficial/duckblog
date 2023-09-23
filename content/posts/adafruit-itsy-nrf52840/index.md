@@ -1,6 +1,6 @@
 +++
 title =  "Getting Rust to run on the Adafruit nRF52840"
-date = "2022-07-24T14:51:48+02:00"
+date = "2022-07-24"
 author = ""
 toc = false
 draft = true

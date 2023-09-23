@@ -19,13 +19,13 @@
     <!-- Time to read, date and tags -->
     <div class="flex flex-col justify-center items-center md:flex-row md:justify-between md:items-center mt-4">
         <div class="flex flex-row items-center mb-2 md:mb-0">
-            <p class="text-sm text-gray-500 ml-1">{{ post.metadata.date }}</p>
-            <p class="text-sm text-gray-500 ml-1">{{ post.metadata.time_to_read }} minute read</p>
+            <p class="text-m text-gray-500 ml-1 post-date">{{ post.metadata.date }}</p>
+            <p class="text-m text-gray-500 ml-1">{{ post.metadata.time_to_read }} minute read</p>
         </div>
         <div class="flex flex-wrap">
             {% for tag in post.metadata.tags %}
                 <a href="/tags/{{ tag }}">
-                    <p class="underline text-sm text-green-500 mr-2">{{ tag }}</p>
+                    <p class="underline text-m text-green-500 mr-2">{{ tag }}</p>
                 </a>
             {% endfor %}
         </div>
@@ -41,4 +41,18 @@
 </div>
 {{ footer }}
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get all elements with the class "post-date"
+        const dateElements = document.querySelectorAll(".post-date");
+
+        // Iterate through each element and transform the date
+        dateElements.forEach(function (element) {
+            const originalDate = element.textContent; // Get the original date text
+            const parts = originalDate.split("-"); // Split the date by "-"
+             // Reformat the date
+            element.textContent = parts[2] + "." + parts[1] + "." + parts[0]; // Set the transformed date as the new content
+        });
+    });
+</script>
 </html>

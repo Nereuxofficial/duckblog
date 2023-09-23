@@ -1,6 +1,6 @@
 +++
 title = "Writing a BitBoard in Rust Pt. 2: The Game State"
-date = "2021-09-14T08:11:54+02:00"
+date = "2021-09-14"
 author = ""
 authorTwitter = "" #do not include @
 cover = ""

@@ -1,6 +1,6 @@
 +++
 title =  "Writing a BitBoard in Rust Pt. 1: The Basics"
-date = "2021-08-23T22:19:48+02:00"
+date = "2021-08-23"
 author = ""
 toc = false
 description = "BitBoards are used in the fastest chess engines on the market. So how do they work? And how do we implement them?"
