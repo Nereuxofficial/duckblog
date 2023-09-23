@@ -89,6 +89,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .with_filter(log_filter),
         )
         .with(telemetry)
+        .with(sentry_tracing::layer())
         .init();
 
     // Trace executed code

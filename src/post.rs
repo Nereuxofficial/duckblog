@@ -241,6 +241,7 @@ impl Post {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     #[tokio::test]
     async fn test_load_post() {
@@ -248,7 +249,10 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(post.metadata.title, "Lichess Elite Analysis");
-        assert_eq!(post.metadata.date, "2021-09-12");
+        assert_eq!(
+            post.metadata.date,
+            NaiveDate::from_str("2021-09-12").unwrap()
+        );
     }
 
     #[tokio::test]
