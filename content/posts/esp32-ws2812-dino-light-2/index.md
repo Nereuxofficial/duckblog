@@ -479,7 +479,8 @@ a simple web client(implemented in the repository) or enable the user to light u
 
 That's it for this post. I hope you enjoyed it and maybe even learned something. I'd like to make my future posts more 
 indepth and technical, but I'm not sure if I can do that without making them too long. If you have any suggestions,
-feel free to open an issue on the repository or contact me on [Mastodon](https://infosec.exchange/@Nereuxofficial).
+feel free to open an issue on the repository or contact me on [Mastodon](https://infosec.exchange/@Nereuxofficial). 
+If you want to support me and my work you can do so [here](https://github.com/sponsors/Nereuxofficial).
 
 ## The Code
 As always the repository is freely available here:
