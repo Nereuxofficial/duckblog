@@ -1,10 +1,12 @@
 mod post;
 mod rss;
+mod sponsors;
 mod ssg;
 mod utils;
 
 use crate::post::Post;
 use crate::rss::serve_rss_feed;
+use crate::sponsors::get_sponsors;
 use crate::ssg::generate_static_site;
 use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
@@ -40,13 +42,10 @@ pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
 pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
 
 // TODO: Tables don't get processed properly. Maybe look into pulldown_cmark tables
-// TODO: Remove file processing at runtime to improve response times
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks
-// TODO: Large cleanup
 // TODO: Create sitemap.xml
 // TODO: add tower-livereload
-// TODO: Cache Posts in Memory
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
@@ -239,6 +238,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if let Ok(post) = loaded_post {
         let cloned_post = post.clone();
         let template = liquid_parse("post.html.liquid");
+        let sponsors = get_sponsors().await.unwrap();
         let header = build_header(Some(post.metadata)).await;
         let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
         let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
@@ -248,6 +248,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
             "header": header,
             "navbar": navbar,
             "footer": footer,
+            "sponsors": sponsors,
         });
         let markup = template.await.render(&globals).unwrap();
         Html(markup).into_response()

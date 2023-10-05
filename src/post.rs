@@ -213,7 +213,8 @@ impl Post {
             // Render template with $1
             |caps: &regex::Captures| {
                 template
-                    .render(&liquid::object!({ "text": caps.get(1).unwrap().as_str() }))
+                    .render(&liquid::object!({ "text": caps.get(1).unwrap().as_str(),
+                    }))
                     .unwrap()
             }
         });
