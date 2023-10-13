@@ -74,7 +74,7 @@ If this fails during flashing, try holding the boot button on your device and ru
 And you flashed your first Rust code onto your ESP32. Congratulations!
 ## Wokwi
 [Wokwi](https://wokwi.com/) is a really cool website allowing you to replay your projects(if all your hardware is implemented for Wokwi) completely in the browser. Some features may cost something in the future, but I just found it incredibly helpful in the past. It also has a plugin for VScode, essentially doing the same but right in your IDE.
-![A wokwi project showcasing an ESP32 connected to a matrix display](images/wokwi.png) (https://wokwi.com/projects/342697409287029332)
+![A wokwi project showcasing an ESP32 connected to a matrix display](images/wokwi.png) 
 
 ## Updates about the ESP32 Ecosystem
 If you want an overview of new features in the last few months in esp-rs you should check out [Scott Mabins Blog](https://mabez.dev/blog/posts/) for updates.
