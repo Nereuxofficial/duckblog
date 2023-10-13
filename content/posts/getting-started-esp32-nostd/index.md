@@ -14,7 +14,8 @@ So you want to program bare-metal Rust on microcontrollers? One option you could
 This is an overview of the setup and the tools used for no-std Rust development on ESP32 microcontrollers and will be updated if anything changes so if anything goes wrong, [raise an issue](https://github.com/Nereuxofficial/duckblog/issues/new) or [contact me on Mastodon](https://infosec.exchange/@Nereuxofficial).
 
 
-The ESP32-family are excellent microcontrollers for many applications with a WI-FI/BLE Chip Built-in. They come in many different form factors, with some being [smaller than your average thumb drive](https://github.com/makermoekoe/Picoclick-C3) and are [commonly used by hobbyists for a wide variety of projects](https://hackaday.io/search?term=ESP32).
+The ESP32-family are excellent microcontrollers for many applications with a WI-FI/BLE Chip Built-in. They come in many different form factors, are [commonly used by hobbyists for a wide variety of projects](https://hackaday.io/search?term=ESP32) with some being [smaller than your average thumb drive](https://github.com/makermoekoe/Picoclick-C3) like this ESP32C3 that surprisingly still works:
+![ESP32C3](images/xiao-esp32c3.png)
 
 And thanks to Espressif developers we have the ability to write Rust code for it. Either with Espressif's [ESP-IDF](https://github.com/espressif/esp-idf) Framework running on FreeRTOS or bare-metal, which is arguably way cooler(but also more dangerous).
 
