@@ -24,13 +24,13 @@ Espressif has many microcontrollers. There is the [ESP8266](https://www.espressi
 The ESP32 family is a bit more expensive, but offer some compelling features like faster processors or even multiple processors or [Thread/Zigbee/Matter](https://www.theverge.com/23165855/thread-smart-home-protocol-matter-apple-google-interview) support, which seems like a technology that will be highly influential in the IoT space.
 Here is a list of the ones I've tried:
 
-|                              | ESP32                       | ESP32-C3 | ESP32-C6                                              | ESP32-H2                              | ESP32-S3                    |
-|------------------------------|-----------------------------|----------|-------------------------------------------------------|---------------------------------------|-----------------------------|
-| CPU Architecture             | Xtensa                      | RISC-V   | RISC-V                                                | RISC-V                                | Xtensa                      |
-| Bluetooth/Wifi               | ✅                           | ✅        | ✅                                                     | ✅                                     | ✅                           |
-| Dual Core                    | ✅                           | 🚫       | ✅                                                     | 🚫                                    | ✅                           |
-| Zigbee/Thread/Matter Support | 🚫                          | 🚫       | ✅                                                     | ✅                                     | 🚫                          |
-| Notes                        | a bit older but very common |          | second CPU is a low-power CPU, very recently released | low-power CPU, also recently released | has some boards with camera |
+|                              | ESP32                       | ESP32-C3                 | ESP32-C6                                              | ESP32-H2                              | ESP32-S3                    |
+|------------------------------|-----------------------------|--------------------------|-------------------------------------------------------|---------------------------------------|-----------------------------|
+| CPU Architecture             | Xtensa                      | RISC-V                   | RISC-V                                                | RISC-V                                | Xtensa                      |
+| Bluetooth/Wifi               | ✅                           | ✅                        | ✅                                                     | ✅                                     | ✅                           |
+| Dual Core                    | ✅                           | 🚫                       | ✅                                                     | 🚫                                    | ✅                           |
+| Zigbee/Thread/Matter Support | 🚫                          | 🚫                       | ✅                                                     | ✅                                     | 🚫                          |
+| Notes                        | a bit older but very common | most common RISC-V model | second CPU is a low-power CPU, very recently released | low-power CPU, also recently released | has some boards with camera |
 
 
 ## IDE Setup
