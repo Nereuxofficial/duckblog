@@ -1,9 +1,6 @@
 +++  
 title = "How NanoMQ had a double free and what we can learn from it"  
 date = "2023-04-25"  
-author = ""  
-authorTwitter = "" #do not include @  
-cover = ""  
 tags = ["C", "nanomq", "security", "fuzzing", "rust"]  
 keywords = ["C", "nanomq", "security", "fuzzing", "rust", "long"]  
 description = "Discovery of a double free in a C MQTT broker and what can be done about it"  
