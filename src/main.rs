@@ -41,7 +41,6 @@ use tracing_subscriber::{Layer, Registry};
 pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
 pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
 
-// TODO: Tables don't get processed properly. Maybe look into pulldown_cmark tables
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks
 // TODO: Create sitemap.xml
