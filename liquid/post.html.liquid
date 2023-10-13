@@ -32,6 +32,9 @@
     </div>
     {{ post.content }}
 
+    <!-- My Sponsors -->
+    <p class="text-center text-white mt-4">Thanks to my sponsors {% for sponsor in sponsors %} <a class="text-green-500" href={{ sponsor.url }}>{{ sponsor.name }} </a>{% endfor %} for making these posts possible! </p>
+
     <div class="flex items-center justify-start mt-4">
         <a href="/" class="text-green-500 hover:text-green-600 flex items-center">
             <img src="/static/home.svg" alt="<" class="w-8 h-8 inline">

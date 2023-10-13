@@ -4,7 +4,7 @@ use crate::POST_CACHE;
 use chrono::NaiveDate;
 use color_eyre::eyre::Error;
 use color_eyre::Result;
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{html, Options, Parser};
 use regex::Regex;
 use rss::{Category, CategoryBuilder, Item as RssItem, ItemBuilder};
 use tokio::fs;
@@ -156,13 +156,12 @@ impl Post {
         metadata.images = Self::load_images(&path).await;
         // Before Parsing replace Cool duck sections
         let parsed_md = Self::cool_duck_replacement(&file).await;
-        let parser = Parser::new(parsed_md.as_str());
+        let parser = Parser::new_ext(parsed_md.as_str(), Options::all());
         let mut html = String::new();
         html::push_html(&mut html, parser);
         html = info_span!("Postprocessing").in_scope(|| {
             html.replace("<ul>", "<ul class=\"list-disc pl-5 pb-2\">")
                 .replace("<a ", "<a class=\"text-green-500\"")
-                // TODO: Add overflow-x-auto scrollable whitespace-pre-wrap to code blocks
                 .replace(
                     "<code class=\"",
                     "<code class=\"whitespace-pre-wrap scrollable overflow-x-auto pb-2 ",
@@ -213,7 +212,8 @@ impl Post {
             // Render template with $1
             |caps: &regex::Captures| {
                 template
-                    .render(&liquid::object!({ "text": caps.get(1).unwrap().as_str() }))
+                    .render(&liquid::object!({ "text": caps.get(1).unwrap().as_str(),
+                    }))
                     .unwrap()
             }
         });
@@ -241,6 +241,7 @@ impl Post {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     #[tokio::test]
     async fn test_load_post() {
@@ -248,7 +249,10 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(post.metadata.title, "Lichess Elite Analysis");
-        assert_eq!(post.metadata.date, "2021-09-12");
+        assert_eq!(
+            post.metadata.date,
+            NaiveDate::from_str("2021-09-12").unwrap()
+        );
     }
 
     #[tokio::test]
