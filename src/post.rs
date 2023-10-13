@@ -4,7 +4,7 @@ use crate::POST_CACHE;
 use chrono::NaiveDate;
 use color_eyre::eyre::Error;
 use color_eyre::Result;
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{html, Options, Parser};
 use regex::Regex;
 use rss::{Category, CategoryBuilder, Item as RssItem, ItemBuilder};
 use tokio::fs;
@@ -156,13 +156,12 @@ impl Post {
         metadata.images = Self::load_images(&path).await;
         // Before Parsing replace Cool duck sections
         let parsed_md = Self::cool_duck_replacement(&file).await;
-        let parser = Parser::new(parsed_md.as_str());
+        let parser = Parser::new_ext(parsed_md.as_str(), Options::all());
         let mut html = String::new();
         html::push_html(&mut html, parser);
         html = info_span!("Postprocessing").in_scope(|| {
             html.replace("<ul>", "<ul class=\"list-disc pl-5 pb-2\">")
                 .replace("<a ", "<a class=\"text-green-500\"")
-                // TODO: Add overflow-x-auto scrollable whitespace-pre-wrap to code blocks
                 .replace(
                     "<code class=\"",
                     "<code class=\"whitespace-pre-wrap scrollable overflow-x-auto pb-2 ",
