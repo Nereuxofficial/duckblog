@@ -47,14 +47,14 @@ espup install
 
 To create a new Rust project usually you just run `cargo new --bin my-project` and then go from there. This however proves difficult due to the dependencies changing interfaces quite often and finding compatible versions is finicky(guess who wasted hours on that). Instead, I would recommend using [esp-template](https://github.com/esp-rs/esp-template):
 
-1. Install cargo-generate(If you don't already have it):
+- Install cargo-generate(If you don't already have it):
    `cargo install cargo-generate`
-2. Generate your project from the template:
+- Generate your project from the template:
    `cargo generate esp-rs/esp-template`
-3. Choose your ESP32 Model from the list, here is the current one:
+- Choose your ESP32 Model from the list, here is the current one:
    ![esp-template model selection](images/esp32-model-selection.png)
-4. Advanced template options allows you to enable heap allocations, logging and Wi-Fi/BT/ESP-Now as well as DevContainers, Wokwi and CI Files, so if you need any of those, choose `true`
-5. Then choose whether to enable Wi-Fi/Bt/ESP-Now; Heap allocations allowing you to use stuff like Vectors or `String`; Dev Containers, which will set up the development environment automatically inside VSCode; Files for Continuous Integration via GitHub Actions; Wokwi Support(see [Wokwi](#Wokwi)) and logging via the `log` crate
+- Advanced template options allows you to enable heap allocations, logging and Wi-Fi/BT/ESP-Now as well as DevContainers, Wokwi and CI Files, so if you need any of those, choose `true`
+- Then choose whether to enable Wi-Fi/Bt/ESP-Now; Heap allocations allowing you to use stuff like Vectors or `String`; Dev Containers, which will set up the development environment automatically inside VSCode; Files for Continuous Integration via GitHub Actions; Wokwi Support(see [Wokwi](#Wokwi)) and logging via the `log` crate
 
 
 Then to flash your project you need to install `espflash` via:
@@ -97,17 +97,21 @@ If you are looking for references on how to do certain things(like using an [Ana
 - The examples directories of [esp-hal](https://github.com/esp-rs/esp-hal/tree/main/esp32-hal/examples) or [esp-wifi](https://github.com/esp-rs/esp-wifi/tree/main/examples-esp32) for your specific chip feature many simple examples of common use cases
 - [ApolloLabs ESP32 Blog posts](https://apollolabsblog.hashnode.dev/series/esp32c3-embedded-rust-hal)
 - [Awesome ESP Rust](https://github.com/esp-rs/awesome-esp-rust)
-- If you like videos more, there is a [Rust Linz talk](https://www.youtube.com/watch?v=0PPPdqoDBQs) and [one of my sponsors is making a video series](https://youtu.be/s42yROAajzw?si=rv0Z5B6R5H1CWNUL)
 - [My Blog posts about an ESP32 Wi-Fi Lamp](https://nereux.blog/tags/esp32) if you work with similar hardware
+
+%Coolduck says%
+If you like videos more, there is a <a class="text-green-500" href="https://www.youtube.com/watch?v=0PPPdqoDBQs">Rust Linz talk</a> and <a class="text-green-500" href="https://youtu.be/s42yROAajzw?si=rv0Z5B6R5H1CWNUL">one of my sponsors is making a video series</a> about no-std ESP32 development.
+%coolduck%
 
 The things I personally am missing from these are probably more complex projects.
 ## Troubleshooting issues
-`no-std` development in Rust as of now is tough. You may not get proper stacktraces and debugging support without using a debugger (even if there is one on the board). Here is my usual workflow on troubleshooting these issues:
-1. Add lots of logging to help me understand what leads to the error
-2. Change the code to a simpler state to try if that changes something
-3. Search [GitHub Issues](https://github.com/esp-rs/esp-hal/issues?q=) of esp-hal or esp-wifi(or whatever may also be at fault)
-4. Search in the [esp-rs Matrix channel](https://matrix.to/#/#esp-rs:matrix.org)
-5. And if none of those resolve my issue: Just ask in the [esp-rs Matrix channel](https://matrix.to/#/#esp-rs:matrix.org). Don't be afraid, they are really nice and helpful.
+`no-std` development in Rust as of now is tough. You may not always get proper stacktraces and debugging support without using a debugger (even if there is one on the board). Here is my usual workflow on troubleshooting these issues:
+- Add lots of logging to help me understand what leads to the error
+- Change the code to a simpler state to try if that changes something
+- Search [GitHub Issues](https://github.com/esp-rs/esp-hal/issues?q=) of esp-hal or esp-wifi(or whatever may also be at fault)
+- Search in the [esp-rs Matrix channel](https://matrix.to/#/#esp-rs:matrix.org)
+- And if none of those resolve my issue: Just ask in the [esp-rs Matrix channel](https://matrix.to/#/#esp-rs:matrix.org). Don't be afraid, they are really nice and helpful.
+
 
 This is something I struggled with a lot while getting into microcontroller programming using Rust since esp-rs was far less practical and no guides were written down, so I decided to write a comprehensive guide. I hope it helped you and provides you with some resources on how to get help. If there's anything I missed, don't hesitate to give me a heads-up!
 
