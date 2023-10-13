@@ -1,11 +1,11 @@
 +++  
 title = "A getting started guide to ESP32 no-std Rust development"  
-date = "2023-04-25"  
+date = "2023-10-13"  
 tags = ["rust", "esp32", "microcontroller", "no-std"]  
 keywords = ["rust", "esp32", "microcontroller", "no-std"]
 description = "Programming ESP32 microcontrollers in Rust without the standard library"
 showFullContent = false  
-draft = false  
+draft = true  
 +++
 
 
