@@ -29,7 +29,7 @@ Here is a list of the ones I've tried:
 |------------------------------|-----------------------------|--------------------------|-------------------------------------------------------|---------------------------------------|-----------------------------|
 | CPU Architecture             | Xtensa                      | RISC-V                   | RISC-V                                                | RISC-V                                | Xtensa                      |
 | Bluetooth/Wifi               | ✅                           | ✅                        | ✅                                                     | ✅                                     | ✅                           |
-| Dual Core                    | ✅                           | 🚫                       | ✅                                                     | 🚫                                    | ✅                           |
+| Dual Core                    | ✅                           | 🚫                       | 🟧                                                    | 🚫                                    | ✅                           |
 | Zigbee/Thread/Matter Support | 🚫                          | 🚫                       | ✅                                                     | ✅                                     | 🚫                          |
 | Notes                        | a bit older but very common | most common RISC-V model | second CPU is a low-power CPU, very recently released | low-power CPU, also recently released | has some boards with camera |
 
@@ -99,7 +99,7 @@ If you like videos more, there is a <a class="text-green-500" href="https://www.
 The things I personally am missing from these are probably more complex projects.
 
 # Async/Await
-A really exciting is bare-metal async via [embassy](https://embassy.dev/). It is still in development, but it is already quite usable.
+A really exciting possibility with this is bare-metal async via [embassy](https://embassy.dev/). It is still in development, but it is already quite usable.
 I would highly encourage you to try it if you are interested in async programming on microcontrollers, although there are some constraints like no generics in tasks.
 
 # Troubleshooting issues
