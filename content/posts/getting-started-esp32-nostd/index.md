@@ -87,6 +87,7 @@ Most times you will then find the feature flag to enable no_std support this way
 
 # References
 If you are looking for references on how to do certain things(like using an [Analog Digital Converter](https://github.com/esp-rs/esp-hal/blob/main/esp32-hal/examples/adc.rs)) in this environment you will probably find that resources are really scarce. But here are some I would recommend:
+- [Espressif's no-std book](https://esp-rs.github.io/no_std-training/) and [the Rust on ESP book](https://esp-rs.github.io/book/overview/using-the-core-library.html)
 - The examples directories of [esp-hal](https://github.com/esp-rs/esp-hal/tree/main/esp32-hal/examples) or [esp-wifi](https://github.com/esp-rs/esp-wifi/tree/main/examples-esp32) for your specific chip feature many simple examples of common use cases
 - [ApolloLabs ESP32 Blog posts](https://apollolabsblog.hashnode.dev/series/esp32c3-embedded-rust-hal)
 - [Awesome ESP Rust](https://github.com/esp-rs/awesome-esp-rust)

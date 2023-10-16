@@ -307,4 +307,13 @@ mod tests {
             .iter()
             .any(|images| images.iter().any(|image| image.0.contains("//")))));
     }
+
+    #[tokio::test]
+    async fn test_serialize_post(){
+        let post = Post::load("content/posts/esp32-ws2812-dino-light".to_string())
+            .await
+            .unwrap();
+        let serialized = serde_json::to_string(&post).unwrap();
+        println!("{}", serialized);
+    }
 }
