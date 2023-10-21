@@ -122,4 +122,4 @@ Here is the current repository digest for [esp-hal](https://github.com/esp-rs/es
 
 This is something I struggled with a lot while getting into microcontroller programming using Rust since esp-rs was far less practical and no guides were written down, so I decided to write a comprehensive guide. I hope it helped you and provides you with some resources on how to get help. If there's anything I missed, don't hesitate to give me a heads-up!
 
-If you have any questions or suggestions feel free to [contact me](https://nereux.blog/contact/). And if you want to support me and my work, you can do so [here](https://github.com/sponsors/Nereuxofficial).
+If you have any questions or suggestions feel free to [contact me](https://nereux.blog/about/). And if you want to support me and my work, you can do so [here](https://github.com/sponsors/Nereuxofficial).
