@@ -1,7 +1,7 @@
-use std::sync::OnceLock;
 use moka::future::Cache;
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
+use std::sync::OnceLock;
 use tracing::instrument;
 
 pub static SPONSOR_CACHE: OnceLock<Cache<String, Vec<Sponsor>>> = OnceLock::new();
@@ -15,9 +15,15 @@ pub struct Sponsor {
 /// Gets the sponsors of the blog from GitHub. Result is cached for 1 hour. So worst case this takes around 300ms, which sucks a bit... Maybe some async task so it is always fast?
 pub async fn get_sponsors() -> color_eyre::Result<Vec<Sponsor>> {
     let cache = SPONSOR_CACHE.get_or_init(|| {
-        Cache::builder().time_to_live(std::time::Duration::from_secs(60*60)).build()
+        Cache::builder()
+            .time_to_live(std::time::Duration::from_secs(60 * 60))
+            .build()
     });
-    let sponsors = cache.get_with("GitHub".to_string(), async { noncached_get_sponsors().await.unwrap() }).await;
+    let sponsors = cache
+        .get_with("GitHub".to_string(), async {
+            noncached_get_sponsors().await.unwrap()
+        })
+        .await;
     Ok(sponsors)
 }
 
@@ -55,7 +61,7 @@ pub async fn noncached_get_sponsors() -> color_eyre::Result<Vec<Sponsor>> {
             serde_json::json!({
                 "query": graphql_query,
             })
-                .to_string(),
+            .to_string(),
         )
         .send()
         .await?

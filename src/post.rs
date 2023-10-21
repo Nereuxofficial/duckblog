@@ -309,7 +309,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_serialize_post(){
+    async fn test_serialize_post() {
         let post = Post::load("content/posts/esp32-ws2812-dino-light".to_string())
             .await
             .unwrap();
