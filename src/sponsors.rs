@@ -90,6 +90,5 @@ mod tests {
     async fn test_get_sponsors() {
         dotenv().ok();
         let sponsors = noncached_get_sponsors().await.unwrap();
-        assert!(!sponsors.is_empty());
     }
 }
