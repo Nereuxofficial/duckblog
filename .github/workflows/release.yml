@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push: { branches: [ main ] }
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        toolchain: [ nightly ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Use Rust Cache
+        if: ${{ runner.os == 'Linux' }}
+        uses: Swatinem/rust-cache@v2.0.1
+
+      - name: Run build --release
+        run: cargo build --release
+
+      - name: Zip Release as commit id
+        uses: vimtor/action-zip@v1
+        with:
+          files: *
+          recursive: false
+          dest: nereux.blog_${{ github.sha }}.zip
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            nereux.blog_${{ github.sha }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
