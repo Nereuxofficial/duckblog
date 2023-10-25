@@ -89,6 +89,6 @@ mod tests {
     #[tokio::test]
     async fn test_get_sponsors() {
         dotenv().ok();
-        let sponsors = noncached_get_sponsors().await.unwrap();
+        let _sponsors = noncached_get_sponsors().await.unwrap();
     }
 }
