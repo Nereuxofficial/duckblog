@@ -43,7 +43,7 @@ pub(crate) async fn static_file_handler(
     let req = Request::builder().uri(uri).body(Body::empty()).unwrap();
     match ServeDir::new("static").oneshot(req).await {
         Ok(response) => Ok(response.map(boxed)),
-        Err(_) => Err((StatusCode::NOT_FOUND, format!("File not found"))),
+        Err(_) => Err((StatusCode::NOT_FOUND, "File not found".to_string())),
     }
 }
 

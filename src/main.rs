@@ -6,7 +6,7 @@ mod utils;
 
 use crate::post::Post;
 use crate::rss::serve_rss_feed;
-use crate::sponsors::get_sponsors;
+use crate::sponsors::{get_sponsors, noncached_get_sponsors, Sponsor};
 use crate::ssg::generate_static_site;
 use crate::utils::{build_header, liquid_parse, static_file_handler};
 use axum::body::Body;
@@ -24,11 +24,12 @@ use std::env;
 use std::error::Error;
 use std::net::SocketAddr;
 use std::str::FromStr;
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 use tokio::fs::read_to_string;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
+use tokio::sync::RwLock;
 use tower::limit::ConcurrencyLimit;
 use tower::timeout::Timeout;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
@@ -40,6 +41,7 @@ use tracing_subscriber::{Layer, Registry};
 
 pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
 pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
+pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 
 // TODO: Think about blue/green deployment
 // TODO: Wrapping Code blocks
@@ -95,6 +97,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // Spans will be sent to the configured OpenTelemetry exporter
         let root = span!(tracing::Level::TRACE, "app_start", work_units = 2);
         let _enter = root.enter();
+    });
+    // Load Sponsors
+    SPONSORS
+        .set(Arc::new(RwLock::new(noncached_get_sponsors().await?)))
+        .unwrap();
+    // Spawn a task to refresh them every hour
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(Duration::from_secs(60)).await;
+            info!("Refreshing Sponsors");
+            let new_sponsors = noncached_get_sponsors().await;
+            if let Ok(sponsors) = new_sponsors {
+                let mut sponsor_lock = SPONSORS.get().unwrap().write().await;
+                sponsor_lock.clear();
+                sponsor_lock.extend(sponsors);
+            }
+        }
     });
     // Initiate Caches
     POST_CACHE
