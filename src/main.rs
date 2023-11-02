@@ -121,8 +121,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 
 #[instrument]
-async fn init_caches(){
-
+async fn init_caches() {
     // Initiate Caches
     POST_CACHE
         .set(
@@ -146,10 +145,8 @@ async fn init_caches(){
         .unwrap();
 }
 
-
 #[instrument]
-async fn start_server(){
-
+async fn start_server() {
     // Define Routes
     let app = Router::new()
         .layer(
@@ -168,10 +165,7 @@ async fn start_server(){
             get(|| async { list_posts(Path(String::new())).await }),
         )
         .route("/tags/:tag", get(list_posts))
-        .route(
-            "/about",
-            get(get_about),
-        )
+        .route("/about", get(get_about))
         .route(
             "/donate",
             get(|| async { get_post(Path("../donate".to_string())).await }),
@@ -251,12 +245,11 @@ async fn get_image(path: String) -> impl IntoResponse {
     }
 }
 
-
 #[instrument]
-async fn get_about() -> impl IntoResponse{
+async fn get_about() -> impl IntoResponse {
     let template = liquid_parse("post.html.liquid");
     let about = Post::load("content/about".to_string()).await.unwrap();
-    let sponsors:Vec<Sponsor> = vec![];
+    let sponsors: Vec<Sponsor> = vec![];
     let header = build_header(Some(about.clone().metadata)).await;
     let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
     let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
