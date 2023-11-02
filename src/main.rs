@@ -115,6 +115,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
         }
     });
+    init_caches().await;
+    start_server().await;
+    Ok(())
+}
+
+#[instrument]
+async fn init_caches(){
+
     // Initiate Caches
     POST_CACHE
         .set(
@@ -136,6 +144,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .build(),
         )
         .unwrap();
+}
+
+
+#[instrument]
+async fn start_server(){
 
     // Define Routes
     let app = Router::new()
@@ -157,7 +170,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/tags/:tag", get(list_posts))
         .route(
             "/about",
-            get(|| async { get_post(Path("../about/".to_string())).await }),
+            get(get_about),
         )
         .route(
             "/donate",
@@ -192,7 +205,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let concurrency_limit = ConcurrencyLimit::new(app.into_make_service(), 2500);
     let timeout = Timeout::new(concurrency_limit, std::time::Duration::from_secs(5));
     axum::Server::bind(&addr).serve(timeout).await.unwrap();
-    Ok(())
 }
 
 #[instrument]
@@ -239,6 +251,26 @@ async fn get_image(path: String) -> impl IntoResponse {
     }
 }
 
+
+#[instrument]
+async fn get_about() -> impl IntoResponse{
+    let template = liquid_parse("post.html.liquid");
+    let about = Post::load("content/about".to_string()).await.unwrap();
+    let sponsors:Vec<Sponsor> = vec![];
+    let header = build_header(Some(about.clone().metadata)).await;
+    let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
+    let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
+    let globals: Object = object!({
+        "post": about,
+        "header": header,
+        "navbar": navbar,
+        "footer": footer,
+        "sponsors": sponsors,
+    });
+    let markup = template.await.render(&globals).unwrap();
+    Html(markup).into_response()
+}
+
 #[instrument]
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     // FIXME: Dumb workaround for images in posts
@@ -260,7 +292,6 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         let header = build_header(Some(post.metadata)).await;
         let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
         let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
-        // TODO: Cleanup, don't pass in data which is already in metadata
         let globals: Object = object!({
             "post": cloned_post,
             "header": header,
