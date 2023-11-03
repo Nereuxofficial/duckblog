@@ -120,6 +120,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Initializes the cache for Posts as well as the cache for images
 #[instrument]
 async fn init_caches() {
     // Initiate Caches
@@ -317,6 +318,8 @@ async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
         .await;
     Html(markup).into_response()
 }
+
+/// Handler for 404 Not found. Note that we include the file at compile time since it's not gonna change
 #[instrument(name = "404")]
 async fn handler_404() -> impl IntoResponse {
     (
