@@ -49,6 +49,9 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: cargo doc --no-deps --document-private-items --all-features
 
+      - name: Install protobuf-compiler
+        run: sudo apt-get install -y protobuf-compiler
+
       - name: Run build --release
         run: cargo build --release
 
