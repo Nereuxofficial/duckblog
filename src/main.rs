@@ -39,6 +39,11 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{Layer, Registry};
 
+// Use Jemalloc only for musl-64 bits platforms
+#[cfg(all(target_env = "musl", target_pointer_width = "64"))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
 pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
 pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
@@ -72,11 +77,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             opentelemetry_otlp::new_exporter()
                 .http()
                 .with_endpoint("https://api.honeycomb.io/v1/traces")
-                .with_http_client(reqwest::Client::new())
-                .with_timeout(std::time::Duration::from_secs(2))
+                .with_timeout(Duration::from_secs(2))
                 .with_headers(metadata),
         )
-        .install_batch(opentelemetry::runtime::Tokio)?;
+        .install_batch(opentelemetry_sdk::runtime::Tokio)?;
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
     // filter printed-out log statements according to the RUST_LOG env var
     let rust_log_var = std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
