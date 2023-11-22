@@ -1,0 +1,10 @@
+version: '3'
+services:
+  duckblog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8010:80"
+    volumes:
+      - .env:/duckblog/.env

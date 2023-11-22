@@ -39,7 +39,6 @@ WORKDIR /duckblog
 
 # Copy our build
 COPY --from=builder /duckblog/target/release/duckblog .
-COPY --from=builder /duckblog/.env .
 
 # Use an unprivileged user.
 USER duckblog:duckblog
