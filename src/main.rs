@@ -193,7 +193,7 @@ async fn start_server() {
         .fallback(handler_404);
 
     // run our app with hyper
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8010));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 80));
     info!("listening on http://{}", addr);
     if env::args().any(|arg| arg == "--ssg") {
         if cfg!(debug_assertions) {

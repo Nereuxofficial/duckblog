@@ -44,7 +44,7 @@ COPY --from=builder /duckblog/.env .
 # Use an unprivileged user.
 USER duckblog:duckblog
 
-EXPOSE 8010
+EXPOSE 80
 
 # Run the binary.
 ENTRYPOINT ["./duckblog"]
