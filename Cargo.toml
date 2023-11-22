@@ -49,3 +49,4 @@ version = "0.5.4"
 opt-level = 3
 lto = "fat"
 codegen-units = 1
+strip = true
