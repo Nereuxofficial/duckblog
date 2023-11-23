@@ -38,6 +38,7 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /duckblog
 
 # Copy our build
+COPY --from=builder /duckblog .
 COPY --from=builder /duckblog/target/release/duckblog .
 
 # Use an unprivileged user.
