@@ -194,7 +194,7 @@ async fn start_server() {
 
     // run our app with hyper
     let addr = SocketAddr::from(([0, 0, 0, 0], 80));
-    info!("listening on http://{}", addr);
+    info!("listening on http://{} in folder {}", addr, env::current_dir().unwrap().display());
     if env::args().any(|arg| arg == "--ssg") {
         if cfg!(debug_assertions) {
             warn!("You are running the SSG in debug mode. This is not recommended.");
