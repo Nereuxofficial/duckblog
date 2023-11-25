@@ -47,4 +47,6 @@ The nice thing about this is that it is a simple webserver Setup that abstracts 
 
 It should be noted that nginx is written in C and has had multiple security issues in the past, however as it is widely used it is really well tested. Maybe that's a fun project to rewrite in Rust.
 
+![visualization of the reverse proxy](images/nginx-reverse-proxy.png)
+
 If this helped you, consider supporting me [here](https://github.com/sponsors/Nereuxofficial) and if you have any feedback you can reach me on [Mastodon](https://infosec.exchange/@Nereuxofficial).
