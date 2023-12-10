@@ -28,7 +28,7 @@ RUN cargo b -r
 ## Run image
 FROM debian:bookworm-slim
 
-RUN apt update && apt upgrade
+RUN apt update && apt upgrade -y
 RUN apt install -y openssl
 RUN apt-get install ca-certificates
 
@@ -38,7 +38,6 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /duckblog
 
 # Copy our build
-COPY --from=builder /duckblog .
 COPY --from=builder /duckblog/target/release/duckblog .
 
 # Use an unprivileged user.

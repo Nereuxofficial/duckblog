@@ -77,6 +77,9 @@ And you flashed your first Rust code onto your ESP32. Congratulations!
 [Wokwi](https://wokwi.com/) is a really cool website allowing you to replay your projects(if all your hardware is implemented for Wokwi) completely in the browser. Some features may cost something in the future, but I just found it incredibly helpful in the past. It also has a plugin for VScode, essentially doing the same but right in your IDE.
 ![A wokwi project showcasing an ESP32 connected to a matrix display](images/wokwi.png) 
 
+## Testing
+To have tests for your project, you can try [embedded-test](https://github.com/probe-rs/embedded-test). Be aware though that it is still in Alpha and may not work for you.
+
 # Dependencies
 Finding dependencies usable in no-std environments is not easy. Many of the ones you may be used to using in std environments cannot be used here and commonly library authors don't mention it in their READMEs.
 Here are a few tips on how to find them when it is not written in the Readme:
