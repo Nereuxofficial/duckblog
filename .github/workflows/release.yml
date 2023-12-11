@@ -31,6 +31,11 @@ jobs:
       - name: Run build --release
         run: cargo build --release
 
+      - name: Set up git user
+        run: |
+          git config --local user.email "bot@nereux.blog"
+            git config --local user.name "Nereux Blog Bot"
+
       - name: Create tag
         run: git tag -a v${{ github.sha }} -m "Release v${{ github.sha }}"
 
