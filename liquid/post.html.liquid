@@ -5,16 +5,19 @@
 <body class="bg-gray-900 text-gray-300">
 {{ navbar }}
 
-<mini-map>
-    <div class="screen-image">
-        <div class="pointer" style="height: 178.564px; transform: translateY(72px);"></div>
-        <div class="canvas" style="width: 90px; height: 243px;"></div>
-    </div>
-</mini-map>
-
+<!-- Mini map on the right -->
+<div class="hidden md:block absolute right-0 top-0 h-full">
+    <mini-map>
+        <div class="screen-image">
+            <div class="pointer" style="height: 178.564px; transform: translateY(72px);"></div>
+            <div class="canvas" style="width: 15vw; height: 250px;"></div>
+        </div>
+    </mini-map>
+</div>
 <!-- Posts -->
-<div class="container mx-auto px-4 md:px-0 md:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
+<div id="main" class="container mx-auto px-4 md:px-0 md:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
      style="padding-top: 6rem; padding-bottom: 2rem;">
+
     {% if post.metadata.draft %}
         <div class="bg-yellow-500 text-white text-center p-2 mb-2">
             <h1 class="text-4xl text-center">This post is a draft and is not yet published. You can read it but there
