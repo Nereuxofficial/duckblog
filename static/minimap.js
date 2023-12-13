@@ -112,7 +112,8 @@ class MiniMap extends HTMLElement {
 
         const isNotEnoughSpace =
             mapHeight + 100 > window.innerHeight || !mq.matches;
-        if (isNotEnoughSpace) return this.removeMap();
+        // Better heuristic needed
+        console.info('isNotEnoughSpace', isNotEnoughSpace);
 
         mq.addEventListener(
             'change',
