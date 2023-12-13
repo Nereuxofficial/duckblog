@@ -1,3 +1,16 @@
 mini-map .screen-image .canvas {
     background: -moz-element(#main) no-repeat scroll center center / contain;
 }
+mini-map .pointer {
+// width: 1.5em;
+    height: 1.5em;
+    padding: 0.25em;
+    border-radius: .375em;
+    position: absolute;
+    top: 8px;
+    right: -.25em;
+    left: -.25em;
+    transform: translateY(0);
+    border: 2px solid rgb(61, 127, 87);
+    filter: drop-shadow(0 0 0.125rem #aaa);
+}

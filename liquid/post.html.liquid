@@ -5,8 +5,8 @@
 <body class="bg-gray-900 text-gray-300">
 {{ navbar }}
 
-<!-- Mini map on the right -->
-<div class="hidden md:block absolute right-0 top-0 h-full">
+<!-- Firefox only Mini map on the right -->
+<div class="hidden md:block fixed right-0 top-0 h-full">
     <mini-map>
         <div class="screen-image">
             <div class="pointer" style="height: 178.564px; transform: translateY(72px);"></div>
@@ -14,6 +14,8 @@
         </div>
     </mini-map>
 </div>
+
+
 <!-- Posts -->
 <div id="main" class="container mx-auto px-4 md:px-0 md:max-w-3xl lg:max-w-4xl xl:max-w-5xl"
      style="padding-top: 6rem; padding-bottom: 2rem;">
