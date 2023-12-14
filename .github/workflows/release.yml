@@ -47,12 +47,4 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t duckblog:${{ github.sha }} . 
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            nereux.blog_${{ github.sha }}.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          docker buildx build --platform linux/amd64,linux/arm64 -t duckblog:${{ github.sha }} .
