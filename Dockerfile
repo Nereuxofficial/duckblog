@@ -5,7 +5,7 @@ LABEL authors="Nereuxofficial"
 
 RUN update-ca-certificates
 RUN apt update && apt upgrade -y
-RUN apt install -y openssl
+RUN apt install -y pkg-config libssl-dev
 
 # Create appuser
 ENV USER=duckblog
