@@ -4,10 +4,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
+    develop:
+      watch:
+        - action: rebuild
+          paths:
+            - ./src
+            - Cargo.lock
+            - Cargo.toml
+      ports:
       - "8010:80"
     volumes:
       - .env:/duckblog/.env
+      - security.txt:/duckblog/security.txt
       - ./static:/duckblog/static
       - ./liquid:/duckblog/liquid
       - ./content:/duckblog/content
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=duckblog=debug
+
