@@ -45,14 +45,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build docker image
-        run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t duckblog:${{ github.sha }} . 
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v1
+      - name: Build new
+        uses: docker/build-push-action@v5
         with:
-          files: |
-            nereux.blog_${{ github.sha }}.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
