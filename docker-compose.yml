@@ -15,7 +15,7 @@ services:
       - "8010:80"
     volumes:
       - .env:/duckblog/.env
-      - security.txt:/duckblog/security.txt
+      - ./security.txt:/duckblog/security.txt
       - ./static:/duckblog/static
       - ./liquid:/duckblog/liquid
       - ./content:/duckblog/content
