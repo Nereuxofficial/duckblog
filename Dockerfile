@@ -4,6 +4,8 @@ FROM rust:slim-buster AS builder
 LABEL authors="Nereuxofficial"
 
 RUN update-ca-certificates
+RUN apt update && apt upgrade -y
+RUN apt install -y openssl
 
 # Create appuser
 ENV USER=duckblog
