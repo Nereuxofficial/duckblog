@@ -159,6 +159,10 @@ async fn start_server() {
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(DefaultOnResponse::new().level(Level::INFO)),
         )
+        .route(
+            "/security.txt",
+            get(|| async { read_to_string("./security.txt").await.unwrap() }),
+        )
         .route("/posts/*path", get(get_post))
         .route(
             "/posts",
@@ -193,7 +197,13 @@ async fn start_server() {
         .fallback(handler_404);
 
     // run our app with hyper
-    let addr = SocketAddr::from(([0, 0, 0, 0], 80));
+    let addr = SocketAddr::from((
+        [0, 0, 0, 0],
+        std::env::var("PORT")
+            .unwrap_or("80".to_string())
+            .parse()
+            .unwrap(),
+    ));
     info!(
         "listening on http://{} in folder {}",
         addr,

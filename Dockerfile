@@ -1,9 +1,11 @@
 # Adapted from https://kerkour.com/rust-small-docker-image
 ## Builder
-FROM rust:latest AS builder
+FROM rust:slim-buster AS builder
 LABEL authors="Nereuxofficial"
 
 RUN update-ca-certificates
+RUN apt update && apt upgrade -y
+RUN apt install -y pkg-config libssl-dev
 
 # Create appuser
 ENV USER=duckblog
