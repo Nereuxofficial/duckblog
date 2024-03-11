@@ -10,7 +10,7 @@ pub struct Sponsor {
 }
 
 #[instrument(err)]
-/// Gets the sponsors of the blog from GitHub. Result is cached for 1 hour. So worst case this takes around 300ms, which sucks a bit... Maybe some async task so it is always fast?
+/// Gets the current sponsors of the blog from GitHub.
 pub async fn get_sponsors() -> color_eyre::Result<Vec<Sponsor>> {
     let sponsors = SPONSORS.get().unwrap().read().await.clone();
     Ok(sponsors)
@@ -90,5 +90,6 @@ mod tests {
     async fn test_get_sponsors() {
         dotenv().ok();
         let _sponsors = noncached_get_sponsors().await.unwrap();
+        println!("{:?}", _sponsors);
     }
 }

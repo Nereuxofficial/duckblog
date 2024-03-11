@@ -10,6 +10,7 @@ RUN apt install -y pkg-config libssl-dev
 # Create appuser
 ENV USER=duckblog
 ENV UID=10001
+ENV RUST_BACKTRACE=1
 
 
 RUN adduser \
