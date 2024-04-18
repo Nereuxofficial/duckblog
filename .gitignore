@@ -1,5 +1,4 @@
 /target
-*.lock
 .idea/
 public/
 .env

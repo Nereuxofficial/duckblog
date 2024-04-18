@@ -29,12 +29,16 @@
       craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
       src = craneLib.cleanCargoSource (craneLib.path ./.);
 
-      buildInputs = with pkgs; [ pkgs.stdenv.cc.cc ];
+      buildInputs = with pkgs; [
+        pkgs.stdenv.cc.cc
+        pkgs.openssl
+      ];
       nativeBuildInputs = with pkgs; [
         rustToolchain
         clang
         mold
         curl
+        pkg-config
       ]
       ++ lib.optionals pkgs.stdenv.isLinux [ autoPatchelfHook ]
       ++ lib.optionals pkgs.stdenv.isDarwin
