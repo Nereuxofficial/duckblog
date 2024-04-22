@@ -107,7 +107,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Spawn a task to refresh them every hour
     tokio::spawn(async move {
         loop {
-            tokio::time::sleep(Duration::from_secs(60)).await;
+            tokio::time::sleep(Duration::from_secs(120)).await;
             info!("Refreshing Sponsors");
             let new_sponsors = noncached_get_sponsors().await;
             if let Ok(sponsors) = new_sponsors {
