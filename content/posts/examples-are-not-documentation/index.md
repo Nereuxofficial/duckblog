@@ -29,7 +29,7 @@ I think [the async book](https://github.com/rust-lang/async-book), which is stil
 If you made a project that you think could be useful to somebody: Share it and document your findings and difficulties and quirks you encountered, so other users may learn from your mistakes.
 
 ## Examples of how to use functions
-I think examples of how to use functions are really great, they show users in their IDE how to use the thing I am working with. Bonus Points if they show what assumptions about them are wrong. As for keeping them updated: [cargo test runs them by default](https://doc.rust-lang.org/cargo/commands/cargo-test.html#documentation-tests) and breaking these tests may remind you to update the now-outdated documentation as well.
+The Rust std library is among the best documented Rust projects. You commonly see examples of how to use these functions. These also show up in IDEs, which is a massive productivity booster. Bonus Points if the code examples show what assumptions about them are wrong. As for keeping them updated: [cargo test runs them by default](https://doc.rust-lang.org/cargo/commands/cargo-test.html#documentation-tests) and breaking these tests may remind you to update the now-outdated documentation as well.
 ![filter_map documentation of the std crate](images/filter_map_documentation.png)
 
 ## What can you do?
