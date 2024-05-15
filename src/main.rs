@@ -82,7 +82,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .install_batch(opentelemetry_sdk::runtime::Tokio)?;
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
     // filter printed-out log statements according to the RUST_LOG env var
-    let rust_log_var = std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
+    let rust_log_var = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
     let log_filter = Targets::from_str(&rust_log_var)?;
     // different filter for traces sent to honeycomb
     Registry::default()
@@ -97,7 +97,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Trace executed code
     tracing::subscriber::with_default(Registry::default(), || {
         // Spans will be sent to the configured OpenTelemetry exporter
-        let root = span!(tracing::Level::TRACE, "app_start", work_units = 2);
+        let root = span!(Level::TRACE, "app_start", work_units = 2);
         let _enter = root.enter();
     });
     // Load Sponsors

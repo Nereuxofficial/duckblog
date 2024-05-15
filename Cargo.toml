@@ -2,7 +2,7 @@
 name = "duckblog"
 version = "0.2.0"
 edition = "2021"
-rust-version = "1.65.0"
+rust-version = "1.70.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -34,10 +34,9 @@ color-eyre = "0.6.2"
 tracing-opentelemetry = "0.22.0"
 axum-tracing-opentelemetry = "0.14.1"
 tracing-error = "0.2.0"
-sentry = {version = "0.31.8", features = ["anyhow", "tracing"]}
+sentry = {version = "0.31.8", features = ["anyhow"]}
 dotenvy = "0.15.7"
 rss = "2.0.6"
-sentry-tracing = "0.32.1"
 serde_json = "1.0.108"
 
 # Use jemalloc for static linking
