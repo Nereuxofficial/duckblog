@@ -14,5 +14,5 @@ services:
       - ./content:/duckblog/content
     environment:
       - RUST_BACKTRACE=1
-      - RUST_LOG=duckblog=debug
+      - RUST_LOG=duckblog=trace
 
