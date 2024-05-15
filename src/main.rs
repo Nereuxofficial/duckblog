@@ -34,10 +34,11 @@ use tower::limit::ConcurrencyLimit;
 use tower::timeout::Timeout;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::*;
+use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::filter::Targets;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{Layer, Registry};
+use tracing_subscriber::Registry;
 
 // Use Jemalloc only for musl-64 bits platforms
 #[cfg(all(target_env = "musl", target_pointer_width = "64"))]
@@ -61,6 +62,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         env::var("SENTRY_DSN")?,
         sentry::ClientOptions {
             release: sentry::release_name!(),
+            traces_sample_rate: 0.3,
             ..Default::default()
         },
     ));
@@ -77,21 +79,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
             opentelemetry_otlp::new_exporter()
                 .http()
                 .with_endpoint("https://api.honeycomb.io/v1/traces")
+                .with_timeout(Duration::from_secs(5))
                 .with_headers(metadata),
         )
         .install_batch(opentelemetry_sdk::runtime::Tokio)?;
-    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+    let telemetry = OpenTelemetryLayer::new(tracer);
     // filter printed-out log statements according to the RUST_LOG env var
     let rust_log_var = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
     let log_filter = Targets::from_str(&rust_log_var)?;
     // different filter for traces sent to honeycomb
     Registry::default()
-        .with(
-            tracing_subscriber::fmt::layer()
-                .with_ansi(true)
-                .with_filter(log_filter),
-        )
         .with(telemetry)
+        .with(log_filter)
+        .with(sentry_tracing::layer())
         .init();
 
     // Trace executed code
