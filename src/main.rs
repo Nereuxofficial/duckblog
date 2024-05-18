@@ -14,7 +14,6 @@ use axum::extract::Path;
 use axum::http::{StatusCode, Uri};
 use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
-use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer};
 use liquid::{object, Object};
 use moka::future::Cache;
 use new_mime_guess::MimeGuess;
@@ -26,6 +25,8 @@ use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
+use opentelemetry::global::ObjectSafeTracerProvider;
+use opentelemetry::trace::Tracer;
 use tokio::fs::read_to_string;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
@@ -62,7 +63,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         env::var("SENTRY_DSN")?,
         sentry::ClientOptions {
             release: sentry::release_name!(),
-            traces_sample_rate: 0.3,
             ..Default::default()
         },
     ));
@@ -83,15 +83,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .with_headers(metadata),
         )
         .install_batch(opentelemetry_sdk::runtime::Tokio)?;
-    let telemetry = OpenTelemetryLayer::new(tracer);
+    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
     // filter printed-out log statements according to the RUST_LOG env var
     let rust_log_var = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
     let log_filter = Targets::from_str(&rust_log_var)?;
     // different filter for traces sent to honeycomb
     Registry::default()
-        .with(telemetry)
         .with(log_filter)
-        .with(sentry_tracing::layer())
+        .with(telemetry)
         .init();
 
     // Trace executed code
@@ -188,10 +187,6 @@ async fn start_server() {
             }),
         )
         .route("/feed.xml", get(serve_rss_feed))
-        // include trace context as header into the response
-        .layer(OtelInResponseLayer::default())
-        //start OpenTelemetry trace on incoming request
-        .layer(OtelAxumLayer::default())
         .fallback(handler_404);
 
     // run our app with hyper
