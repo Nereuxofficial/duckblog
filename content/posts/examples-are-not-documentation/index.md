@@ -38,3 +38,5 @@ That's all well and good. Library authors should be aware that good documentatio
 If you see something you don't understand (and you've already researched it), try to figure out how it works by reading through the code, and maybe file an issue (the issue tracker will also help other users with similar problems, of course). Once you understand it, try to write documentation from the user's point of view (bonus points for examples and showing which assumptions are wrong). This can also help the maintainers immensely, as writing from a user's point of view can be very difficult. Then open a pull request, and the author will most likely accept it, as they are almost always happy to get some help. Be sure to read the contribution guidelines though, and if the maintainers want you to do it, file a bug first to see if documentation is wanted.
 
 Apart from that, I plan to write some iced-related posts in the near future for some Linux window manager projects I have in mind. Hope to see you then!
+
+A little update note:  [docs.rs now finds functions used in examples!](https://infosec.exchange/@Nereuxofficial/112615275911356099)
