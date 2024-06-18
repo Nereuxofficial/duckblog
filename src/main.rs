@@ -85,10 +85,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let rust_log_var = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
     let log_filter = Targets::from_str(&rust_log_var)?;
     // different filter for traces sent to honeycomb
-    Registry::default()
-        .with(log_filter)
-        .with(telemetry)
-        .init();
+    Registry::default().with(log_filter).with(telemetry).init();
 
     // Trace executed code
     subscriber::with_default(Registry::default(), || {
@@ -168,16 +165,16 @@ async fn start_server() {
             "/donate",
             get(|| async { get_post(Path("../donate".to_string())).await }),
         )
-        .nest_service(
-            "/static",
-            ServeDir::new("static")
-        )
+        .nest_service("/static", ServeDir::new("static"))
         .route(
             "/favicon.ico",
             get(|| async {
                 Response::builder()
                     .header("Content-Type", "image/x-icon")
-                    .body(Body::from(String::from_utf8(include_bytes!("../static/favicon.ico").to_vec()).unwrap()))
+                    .body(Body::from(
+                        String::from_utf8(include_bytes!("../static/favicon.ico").to_vec())
+                            .unwrap(),
+                    ))
                     .unwrap()
             }),
         )

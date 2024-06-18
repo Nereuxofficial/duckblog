@@ -1,5 +1,5 @@
 use crate::post::PostMetadata;
-use axum::body::{Body};
+use axum::body::Body;
 use axum::http::{Request, Response, StatusCode, Uri};
 use liquid::{object, Template};
 use tokio::fs::read_to_string;
