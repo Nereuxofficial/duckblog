@@ -185,7 +185,7 @@ async fn start_server() {
     let addr = SocketAddr::from((
         [0, 0, 0, 0],
         std::env::var("PORT")
-            .unwrap_or("80".to_string())
+            .unwrap_or("8000".to_string())
             .parse()
             .unwrap(),
     ));

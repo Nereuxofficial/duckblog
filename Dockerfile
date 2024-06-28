@@ -32,7 +32,7 @@ RUN cargo b -r
 FROM debian:bookworm-slim
 
 RUN apt update && apt upgrade -y
-RUN apt install -y openssl pkg-config ca-certificates libssl-dev
+RUN apt install -y openssl pkg-config ca-certificates libssl-dev curl
 RUN update-ca-certificates
 
 COPY --from=builder /etc/passwd /etc/passwd
