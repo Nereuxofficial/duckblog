@@ -4,7 +4,7 @@ description = "A simple analogy for how futures work in Rust"
 date = "2023-07-10"
 tags= ["futures", "async", "tokio", "rust"]
 keywords= ["rust", "async", "futures"]
-draft = false
+draft = true
 +++
 Imagine going to a restaurant. After a few minutes the waiter comes to you and asks you whether you've decided what to order yet. You think a bit and respond with "I am not ready to order yet" and after a while he asks you again and the you say after further thinking: "Here's my order: A plate of whimsical unicorn-shaped spaghetti!". That is, in a very simplified way, how futures work in Rust.
 
@@ -164,7 +164,6 @@ But types in tasks have to implement Send (and sometimes even Sync) which can be
 
 Enjoy your food!
 ![Unicorn shaped spaghetti](images/unicorn-shaped-spagetthi.png)
-_Image generated using Stable Diffusion 1.5_
 
 ## Credits
 - [My lovely wife](https://github.com/Segelente) for the great analogy and keeping me motivated :)

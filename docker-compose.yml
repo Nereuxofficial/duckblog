@@ -1,11 +1,10 @@
-version: '3'
 services:
   duckblog:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8010:80"
+      - "8010:8000"
     volumes:
       - .env:/duckblog/.env
       - ./security.txt:/duckblog/security.txt
@@ -14,5 +13,10 @@ services:
       - ./content:/duckblog/content
     environment:
       - RUST_BACKTRACE=1
-      - RUST_LOG=duckblog=debug
-
+      - RUST_LOG=duckblog=trace
+    healthcheck:
+      test: curl --fail http://0.0.0.0:8000 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 1
+      start_period: 30s

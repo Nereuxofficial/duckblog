@@ -1,5 +1,5 @@
 use crate::post::PostMetadata;
-use axum::body::{boxed, Body, BoxBody};
+use axum::body::Body;
 use axum::http::{Request, Response, StatusCode, Uri};
 use liquid::{object, Template};
 use tokio::fs::read_to_string;
@@ -34,17 +34,6 @@ pub(crate) async fn liquid_parse(file: impl ToString) -> Template {
         })
         .await;
     compiler.parse(&file).unwrap()
-}
-#[instrument(err(Debug))]
-pub(crate) async fn static_file_handler(
-    uri: Uri,
-) -> Result<Response<BoxBody>, (StatusCode, String)> {
-    debug!("Requested {}", uri);
-    let req = Request::builder().uri(uri).body(Body::empty()).unwrap();
-    match ServeDir::new("static").oneshot(req).await {
-        Ok(response) => Ok(response.map(boxed)),
-        Err(_) => Err((StatusCode::NOT_FOUND, "File not found".to_string())),
-    }
 }
 
 #[instrument]

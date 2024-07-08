@@ -1,6 +1,6 @@
 # Adapted from https://kerkour.com/rust-small-docker-image
 ## Builder
-FROM rust:slim-buster AS builder
+FROM rust:slim-bookworm AS builder
 LABEL authors="Nereuxofficial"
 
 RUN update-ca-certificates
@@ -32,8 +32,8 @@ RUN cargo b -r
 FROM debian:bookworm-slim
 
 RUN apt update && apt upgrade -y
-RUN apt install -y openssl
-RUN apt-get install ca-certificates
+RUN apt install -y openssl pkg-config ca-certificates libssl-dev curl
+RUN update-ca-certificates
 
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group

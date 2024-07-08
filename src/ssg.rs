@@ -103,11 +103,11 @@ async fn generate_404() {
 async fn save_page_to_path(uri: Uri) {
     // The url path with the first / removed
     let mut path = uri.path();
-    if path.starts_with("/") {
+    if path.starts_with('/') {
         path = &path[1..path.len()];
     }
     let big_path = format!("{}{}", path, "index");
-    if path.ends_with("/") {
+    if path.ends_with('/') {
         fs::create_dir_all(format!("{}/{}", FOLDER, path))
             .await
             .expect("Could not create dir");
