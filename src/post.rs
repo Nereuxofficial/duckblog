@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::utils::{get_reading_time, liquid_parse};
 #[allow(unused_imports)]
 use crate::POST_CACHE;
@@ -52,9 +54,9 @@ impl Tag {
     }
 }
 
-impl ToString for Tag {
-    fn to_string(&self) -> String {
-        self.0.clone()
+impl Display for Tag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.clone().fmt(f)
     }
 }
 
@@ -124,7 +126,7 @@ impl Post {
 
     #[instrument(err)]
     async fn non_cached_load(path: String) -> Result<Self> {
-        let path = path.trim_end_matches("/").to_string();
+        let path = path.trim_end_matches('/').to_string();
         if File::open(path.clone()).await.is_ok() {
             Self::parse_file(format!("{path}/index")).await
         } else {

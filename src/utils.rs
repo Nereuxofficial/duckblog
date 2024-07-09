@@ -1,20 +1,11 @@
 use crate::post::PostMetadata;
-use axum::body::Body;
-use axum::http::{Request, Response, StatusCode, Uri};
 use liquid::{object, Template};
 use tokio::fs::read_to_string;
-use tower::ServiceExt;
-use tower_http::services::ServeDir;
 use tracing::{debug, info_span, instrument};
 #[instrument]
 pub(crate) async fn build_header(post: Option<PostMetadata>) -> String {
     let template = liquid_parse("header.liquid").await;
-    let metadata = {
-        match post {
-            None => PostMetadata::default(),
-            Some(m) => m,
-        }
-    };
+    let metadata = post.unwrap_or_default();
     if metadata.images.is_some() {
         debug!("Images: {:#?}", metadata.images);
     }
