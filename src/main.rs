@@ -142,10 +142,7 @@ async fn start_server() {
             get(|| async {
                 Response::builder()
                     .header("Content-Type", "image/x-icon")
-                    .body(Body::from(
-                        String::from_utf8(include_bytes!("../static/favicon.ico").to_vec())
-                            .unwrap(),
-                    ))
+                    .body(Body::from(include_bytes!("../static/favicon.ico").to_vec()))
                     .unwrap()
             }),
         )
