@@ -17,12 +17,10 @@ use axum::{routing::get, Router};
 use liquid::{object, Object};
 use moka::future::Cache;
 use new_mime_guess::MimeGuess;
-use opentelemetry_otlp::WithExportConfig;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
 use std::net::SocketAddr;
-use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 use tokio::fs::read_to_string;
@@ -32,10 +30,6 @@ use tokio::net::TcpListener;
 use tokio::sync::RwLock;
 use tower_http::services::ServeDir;
 use tracing::*;
-use tracing_subscriber::filter::Targets;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::Registry;
 
 // Use Jemalloc only for musl-64 bits platforms
 #[cfg(all(target_env = "musl", target_pointer_width = "64"))]
@@ -69,29 +63,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         env::var("HONEYCOMB_API_KEY")?,
     );
     metadata.insert("x-honeycomb-dataset".to_string(), "duckblog".to_string());
-    let tracer = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(
-            opentelemetry_otlp::new_exporter()
-                .http()
-                .with_endpoint("https://api.honeycomb.io/")
-                .with_timeout(Duration::from_secs(5))
-                .with_headers(metadata),
-        )
-        .install_batch(opentelemetry_sdk::runtime::Tokio)?;
-    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
-    // filter printed-out log statements according to the RUST_LOG env var
-    let rust_log_var = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
-    let log_filter = Targets::from_str(&rust_log_var)?;
-    // different filter for traces sent to honeycomb
-    Registry::default().with(log_filter).with(telemetry).init();
-
-    // Trace executed code
-    subscriber::with_default(Registry::default(), || {
-        // Spans will be sent to the configured OpenTelemetry exporter
-        let root = span!(Level::TRACE, "app_start", work_units = 2);
-        let _enter = root.enter();
-    });
+    tracing_subscriber::fmt().init();
     // Load Sponsors
     SPONSORS
         .set(Arc::new(RwLock::new(noncached_get_sponsors().await?)))
