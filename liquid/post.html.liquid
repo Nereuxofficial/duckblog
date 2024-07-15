@@ -37,7 +37,7 @@
         <div class="flex flex-wrap">
             {% for tag in post.metadata.tags %}
                 <a class="bg-gray-800 rounded-full px-3 py-1 justify-center items-center" href="/tags/{{ tag }}">
-                    <p class="underline text-m text-green-500 text-center mr-2">{{ tag }}</p>
+                    <p class="underline text-m text-green-500 text-center mr-2">#{{ tag }}</p>
                 </a>
             {% endfor %}
         </div>
