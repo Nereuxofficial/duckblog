@@ -44,6 +44,7 @@ pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 // TODO: Wrapping Code blocks
 // TODO: Create sitemap.xml
 // TODO: add tower-livereload
+// TODO: Find a way to write in a proper note-taking tool and have the folder structure be 1:1 with the blog. I could also write shitposts then.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
