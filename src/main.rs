@@ -36,7 +36,7 @@ use tracing::*;
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
-pub static POST_CACHE: OnceLock<Cache<String, Post>> = OnceLock::new();
+pub static POSTS: OnceLock<HashMap<String, Post>> = OnceLock::new();
 pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
 pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 
@@ -44,7 +44,6 @@ pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 // TODO: Wrapping Code blocks
 // TODO: Create sitemap.xml
 // TODO: add tower-livereload
-// TODO: Find a way to write in a proper note-taking tool and have the folder structure be 1:1 with the blog. I could also write shitposts then.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
@@ -69,6 +68,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     SPONSORS
         .set(Arc::new(RwLock::new(noncached_get_sponsors().await?)))
         .unwrap();
+    let _ = Post::parse_all_posts().await;
     // Spawn a task to refresh them every hour
     tokio::spawn(async move {
         loop {
@@ -90,17 +90,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 /// Initializes the cache for Posts as well as the cache for images
 #[instrument]
 async fn init_caches() {
-    // Initiate Caches
-    POST_CACHE
-        .set(
-            Cache::builder()
-                .initial_capacity(100)
-                .max_capacity(10000)
-                .time_to_live(Duration::from_secs(60 * 30))
-                .time_to_idle(Duration::from_secs(60 * 10))
-                .build(),
-        )
-        .unwrap();
     IMAGE_CACHE
         .set(
             Cache::builder()
@@ -138,6 +127,7 @@ async fn start_server() {
             get(|| async { get_post(Path("../donate".to_string())).await }),
         )
         .nest_service("/static", ServeDir::new("static"))
+        .nest_service("/images", ServeDir::new("content/images"))
         .route(
             "/favicon.ico",
             get(|| async {
@@ -238,10 +228,6 @@ async fn get_about() -> impl IntoResponse {
 
 #[instrument]
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
-    // FIXME: Dumb workaround for images in posts
-    if path.contains("images") {
-        return get_image(path).await.into_response();
-    }
     if !path.ends_with('/') {
         // Workaround for wrong image paths, breaks /about
         return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();

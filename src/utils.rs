@@ -6,7 +6,7 @@ use tracing::{debug, info_span, instrument};
 pub(crate) async fn build_header(post: Option<PostMetadata>) -> String {
     let template = liquid_parse("header.liquid").await;
     let metadata = post.unwrap_or_default();
-    if metadata.images.is_some() {
+    if !metadata.images.is_empty() {
         debug!("Images: {:#?}", metadata.images);
     }
     let globals = object!({ "metadata": metadata });
