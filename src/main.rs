@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     SPONSORS
         .set(Arc::new(RwLock::new(noncached_get_sponsors().await?)))
         .unwrap();
-    let _ = Post::parse_all_posts().await;
+    let _ = Post::parse_all_posts().await.unwrap();
     // Spawn a task to refresh them every hour
     tokio::spawn(async move {
         loop {
@@ -230,21 +230,21 @@ async fn get_about() -> impl IntoResponse {
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if !path.ends_with('/') {
         // Workaround for wrong image paths, breaks /about
-        return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();
+        return Redirect::to(format!("/posts_map/{}/", path).as_str()).into_response();
     }
     // Remove trailing slash
-    let path = path.trim_end_matches('/');
+    let path = format!("/posts/{}", path.trim_end_matches('/'));
     debug!("Post `{}` requested", path);
-    let loaded_post = Post::load(format!("content/posts/{}", path)).await;
-    if let Ok(post) = loaded_post {
-        let cloned_post = post.clone();
+    let posts_map = POSTS.get().unwrap();
+    let loaded_post = posts_map.get(&path);
+    if let Some(post) = loaded_post {
         let template = liquid_parse("post.html.liquid");
         let sponsors = get_sponsors().await.unwrap();
-        let header = build_header(Some(post.metadata)).await;
+        let header = build_header(Some(post.metadata.clone())).await;
         let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();
         let footer = read_to_string("./liquid/footer.liquid").await.unwrap();
         let globals: Object = object!({
-            "post": cloned_post,
+            "post": post,
             "header": header,
             "navbar": navbar,
             "footer": footer,
