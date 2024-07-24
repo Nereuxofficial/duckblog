@@ -16,16 +16,14 @@ use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
 use liquid::{object, Object};
 use moka::future::Cache;
-use new_mime_guess::MimeGuess;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
 use std::net::SocketAddr;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
+use itertools::Itertools;
 use tokio::fs::read_to_string;
-use tokio::fs::File;
-use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
 use tokio::sync::RwLock;
 use tower_http::services::ServeDir;
@@ -164,50 +162,6 @@ async fn start_server() {
 }
 
 #[instrument]
-async fn get_image(path: String) -> impl IntoResponse {
-    debug!("Image `{}` requested", path);
-    // Check if in cache otherwise load from disk
-    if let Some(image) = IMAGE_CACHE.get().unwrap().get(&path).await {
-        debug!("Image `{}` loaded from cache", path);
-        return Response::builder()
-            .header(
-                "Content-Type",
-                MimeGuess::from_path(&path)
-                    .first_or_octet_stream()
-                    .to_string(),
-            )
-            .body(Body::from(image))
-            .unwrap()
-            .into_response();
-    }
-    if let Ok(mut file) = File::open(format!("content/posts/{path}")).await {
-        let mut buffer = vec![];
-        file.read_to_end(&mut buffer)
-            .await
-            .expect("Could not read image");
-        IMAGE_CACHE
-            .get()
-            .unwrap()
-            .insert(path.clone(), buffer.clone())
-            .await;
-
-        // Return the image with the right mime type
-        Response::builder()
-            .header(
-                "Content-Type",
-                MimeGuess::from_path(&path)
-                    .first_or_octet_stream()
-                    .to_string(),
-            )
-            .body(Body::from(buffer))
-            .unwrap()
-            .into_response()
-    } else {
-        handler_404().await.into_response()
-    }
-}
-
-#[instrument]
 async fn get_about() -> impl IntoResponse {
     let template = liquid_parse("post.html.liquid");
     let about = Post::load("content/about".to_string()).await.unwrap();
@@ -260,7 +214,8 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
 #[instrument]
 async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     info!("Listing posts with filter: {:#?}", path);
-    let mut posts = POSTS.get().unwrap().values().cloned().collect::<Vec<Post>>();
+    let mut posts = POSTS.get().unwrap().values().sorted_by_key(|p| p.metadata.date).cloned().collect::<Vec<Post>>();
+    posts.reverse();
     if !path.is_empty() {
         posts.retain(|post| post.metadata.tags.iter().any(|tag| tag == &path));
     }
