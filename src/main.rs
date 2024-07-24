@@ -230,7 +230,7 @@ async fn get_about() -> impl IntoResponse {
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if !path.ends_with('/') {
         // Workaround for wrong image paths, breaks /about
-        return Redirect::to(format!("/posts_map/{}/", path).as_str()).into_response();
+        return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();
     }
     // Remove trailing slash
     let path = format!("/posts/{}", path.trim_end_matches('/'));
@@ -260,7 +260,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
 #[instrument]
 async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     info!("Listing posts with filter: {:#?}", path);
-    let mut posts = Post::parse_all_posts().await.unwrap();
+    let mut posts = POSTS.get().unwrap().values().cloned().collect::<Vec<Post>>();
     if !path.is_empty() {
         posts.retain(|post| post.metadata.tags.iter().any(|tag| tag == &path));
     }

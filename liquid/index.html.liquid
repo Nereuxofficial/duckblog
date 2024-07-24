@@ -30,7 +30,7 @@
       {% for post in posts %}
         <div class="flex-column text-center my-10">
           <h2 class="text-4xl font-bold mb-0 text-green-500">
-            <a href="/{{ post.path }}">
+            <a href="{{ post.path }}">
               {{ post.metadata.title }}</a>
           </h2>
           <p class="text-gray-500 text-sm mb-0">{{ post.metadata.date }}</p>
