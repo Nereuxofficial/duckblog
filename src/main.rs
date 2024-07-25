@@ -52,13 +52,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             ..Default::default()
         },
     ));
-    // OpenTelemetry tracing
-    let mut metadata = HashMap::new();
-    metadata.insert(
-        "x-honeycomb-team".to_string(),
-        env::var("HONEYCOMB_API_KEY")?,
-    );
-    metadata.insert("x-honeycomb-dataset".to_string(), "duckblog".to_string());
     tracing_subscriber::fmt().init();
     // Load Sponsors
     SPONSORS
