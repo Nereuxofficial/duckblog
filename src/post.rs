@@ -204,7 +204,7 @@ impl Post {
     #[instrument(err)]
     pub async fn parse_all_posts() -> Result<Vec<Self>> {
         // List all files in content/posts
-        let posts = std::fs::read_dir("content/posts").unwrap_or_else(|f| {
+        let files = std::fs::read_dir("content/posts").unwrap_or_else(|f| {
             panic!(
                 "Could not read posts directory: {} in directory {}",
                 f,
@@ -212,8 +212,8 @@ impl Post {
             )
         });
         let mut posts_list = Vec::new();
-        for post in posts {
-            let post = post.unwrap();
+        for file in files {
+            let post = file.unwrap();
             posts_list.push(
                 Post::load(format!(
                     "content/posts/{}",

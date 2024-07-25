@@ -16,7 +16,6 @@ use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
 use itertools::Itertools;
 use liquid::{object, Object};
-use moka::future::Cache;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
@@ -35,7 +34,6 @@ use tracing::*;
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 pub static POSTS: OnceLock<HashMap<String, Post>> = OnceLock::new();
-pub static IMAGE_CACHE: OnceLock<Cache<String, Vec<u8>>> = OnceLock::new();
 pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 
 // TODO: Think about blue/green deployment
@@ -80,24 +78,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
         }
     });
-    init_caches().await;
     start_server().await;
     Ok(())
-}
-
-/// Initializes the cache for Posts as well as the cache for images
-#[instrument]
-async fn init_caches() {
-    IMAGE_CACHE
-        .set(
-            Cache::builder()
-                .initial_capacity(50)
-                .max_capacity(10000)
-                .time_to_live(Duration::from_secs(60 * 60))
-                .time_to_idle(Duration::from_secs(60 * 30))
-                .build(),
-        )
-        .unwrap();
 }
 
 #[instrument]
