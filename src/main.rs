@@ -14,6 +14,7 @@ use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
+use itertools::Itertools;
 use liquid::{object, Object};
 use moka::future::Cache;
 use std::collections::HashMap;
@@ -22,7 +23,6 @@ use std::error::Error;
 use std::net::SocketAddr;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
-use itertools::Itertools;
 use tokio::fs::read_to_string;
 use tokio::net::TcpListener;
 use tokio::sync::RwLock;
@@ -214,7 +214,13 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
 #[instrument]
 async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     info!("Listing posts with filter: {:#?}", path);
-    let mut posts = POSTS.get().unwrap().values().sorted_by_key(|p| p.metadata.date).cloned().collect::<Vec<Post>>();
+    let mut posts = POSTS
+        .get()
+        .unwrap()
+        .values()
+        .sorted_by_key(|p| p.metadata.date)
+        .cloned()
+        .collect::<Vec<Post>>();
     posts.reverse();
     if !path.is_empty() {
         posts.retain(|post| post.metadata.tags.iter().any(|tag| tag == &path));
