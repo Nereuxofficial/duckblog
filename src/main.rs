@@ -40,11 +40,10 @@ pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 // TODO: Wrapping Code blocks
 // TODO: Create sitemap.xml
 // TODO: add tower-livereload
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     // Read .env
     dotenvy::dotenv().ok();
-    // this reports panics
+    // According to the sentry docs this should be started before the runtime is started
     let _guard = sentry::init((
         env::var("SENTRY_DSN")?,
         sentry::ClientOptions {
@@ -53,25 +52,31 @@ async fn main() -> Result<(), Box<dyn Error>> {
         },
     ));
     tracing_subscriber::fmt().init();
-    // Load Sponsors
-    SPONSORS
-        .set(Arc::new(RwLock::new(noncached_get_sponsors().await?)))
-        .unwrap();
-    let _ = Post::parse_all_posts().await.unwrap();
-    // Spawn a task to refresh them every hour
-    tokio::spawn(async move {
-        loop {
-            tokio::time::sleep(Duration::from_secs(120)).await;
-            info!("Refreshing Sponsors");
-            let new_sponsors = noncached_get_sponsors().await;
-            if let Ok(sponsors) = new_sponsors {
-                let mut sponsor_lock = SPONSORS.get().unwrap().write().await;
-                sponsor_lock.clear();
-                sponsor_lock.extend(sponsors);
-            }
-        }
-    });
-    start_server().await;
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
+            // Load Sponsors
+            SPONSORS
+                .set(Arc::new(RwLock::new(noncached_get_sponsors().await.unwrap())))
+                .unwrap();
+            let _ = Post::parse_all_posts().await.unwrap();
+            // Spawn a task to refresh them every hour
+            tokio::spawn(async move {
+                loop {
+                    tokio::time::sleep(Duration::from_secs(120)).await;
+                    info!("Refreshing Sponsors");
+                    let new_sponsors = noncached_get_sponsors().await;
+                    if let Ok(sponsors) = new_sponsors {
+                        let mut sponsor_lock = SPONSORS.get().unwrap().write().await;
+                        sponsor_lock.clear();
+                        sponsor_lock.extend(sponsors);
+                    }
+                }
+            });
+            start_server().await;
+        });
     Ok(())
 }
 
