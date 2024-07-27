@@ -144,7 +144,7 @@ async fn start_server() {
 #[instrument]
 async fn get_about() -> impl IntoResponse {
     let template = liquid_parse("post.html.liquid");
-    let about = Post::load("content/about".to_string()).await.unwrap();
+    let about = Post::load("content/about.md".to_string()).await.unwrap();
     let sponsors: Vec<Sponsor> = vec![];
     let header = build_header(Some(about.clone().metadata)).await;
     let navbar = read_to_string("./liquid/navbar.liquid").await.unwrap();

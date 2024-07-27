@@ -144,7 +144,7 @@ impl Post {
             warn!("Path {} contains double slashes, this is not allowed", path);
             path = path.replace("//", "/");
         }
-        debug!("Parsing post `{}`", path);
+        println!("Parsing post `{}`", path);
         let file = read_to_string(path).await?;
         // Split content from metadata
         let mut content_split_iterator = file.split("---");
@@ -179,7 +179,7 @@ impl Post {
     }
     #[instrument]
     async fn load_images(text: &str) -> Vec<Image> {
-        let img_regex = Regex::new(r#"!\[.*?\]\((.*?)\)"#).unwrap();
+        let img_regex = Regex::new(r#"!\[.*?]\((.*?)\)"#).unwrap();
         img_regex
             .captures_iter(text)
             .map(|x| Image(x[1].to_string()))

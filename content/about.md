@@ -1,15 +1,13 @@
-+++
-title= "About"
-date= "2021-09-12"
-tags= []
-keywords= []
-description= "About the author"
-+++
-
-
+---
+title: About
+date: 2024-07-24
+tags: 
+description: About the author
+url: /about
+---
 ## About Me
 
-Hi there! I'm Benedikt, a developer from Germany. You can check out some of my projects on [GitHub](https://github.com/Nereuxofficial)
+Hi there! I'm Benedikt, a developer from Germany with an interest for Rust, Cybersecurity and embedded devices. You can check out some of my projects on [GitHub](https://github.com/Nereuxofficial)
 
 ### Contact me
 
