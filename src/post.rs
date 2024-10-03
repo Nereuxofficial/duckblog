@@ -177,6 +177,7 @@ impl Post {
             metadata,
         })
     }
+    /// Extract images out of markdown text
     #[instrument]
     async fn load_images(text: &str) -> Vec<Image> {
         let img_regex = Regex::new(r#"!\[.*?]\((.*?)\)"#).unwrap();
