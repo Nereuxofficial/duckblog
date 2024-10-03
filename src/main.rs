@@ -59,7 +59,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         .block_on(async {
             // Load Sponsors
             SPONSORS
-                .set(Arc::new(RwLock::new(noncached_get_sponsors().await.unwrap())))
+                .set(Arc::new(RwLock::new(
+                    noncached_get_sponsors().await.unwrap(),
+                )))
                 .unwrap();
             let _ = Post::parse_all_posts().await.unwrap();
             // Spawn a task to refresh them every hour

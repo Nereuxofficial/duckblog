@@ -225,12 +225,11 @@ impl Post {
         if cfg!(not(debug_assertions)) {
             posts_list.retain(|post| post.metadata.draft != Some(true));
         }
-        let _ = POSTS
-            .set(HashMap::from_iter(
-                posts_list
-                    .iter()
-                    .map(|post| (post.metadata.url.clone(), post.clone())),
-            ));
+        let _ = POSTS.set(HashMap::from_iter(
+            posts_list
+                .iter()
+                .map(|post| (post.metadata.url.clone(), post.clone())),
+        ));
         posts_list.sort_by(|a, b| b.metadata.date.cmp(&a.metadata.date));
         Ok(posts_list)
     }
