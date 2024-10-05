@@ -20,6 +20,7 @@ pub struct Post {
     pub metadata: PostMetadata,
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<RssItem> for Post {
     fn into(self) -> RssItem {
         ItemBuilder::default()
