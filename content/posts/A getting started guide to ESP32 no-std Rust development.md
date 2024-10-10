@@ -15,7 +15,7 @@ This is an overview of the setup and the tools used for no-std Rust development 
 
 
 The ESP32-family are excellent microcontrollers for many applications with a WI-FI/BLE Chip Built-in. They come in many different form factors, are [commonly used by hobbyists for a wide variety of projects](https://hackaday.io/search?term=ESP32) with some being [smaller than your average thumb drive](https://github.com/makermoekoe/Picoclick-C3) like this ESP32C3 that surprisingly still works:
-![ESP32C3](images/xiao-esp32c3.avif)
+![ESP32C3](/images/xiao-esp32c3.avif)
 
 And thanks to Espressif developers we have the ability to write Rust code for it. Either with Espressif's [ESP-IDF](https://github.com/espressif/esp-idf) Framework running on FreeRTOS or bare-metal, which is arguably way cooler(but also more dangerous).
 
@@ -53,7 +53,7 @@ To create a new Rust project usually you just run `cargo new --bin my-project` a
 - Generate your project from the template:
    `cargo generate esp-rs/esp-template`
 - Choose your ESP32 Model from the list, here is the current one:
-   ![esp-template model selection](images/esp32-model-selection.avif)
+   ![esp-template model selection](/images/esp32-model-selection.avif)
 - Advanced template options allows you to enable heap allocations, logging and Wi-Fi/BT/ESP-Now as well as DevContainers, Wokwi and CI Files, so if you need any of those, choose `true`
 - Then choose whether to enable Wi-Fi/Bt/ESP-Now; Heap allocations allowing you to use stuff like Vectors or `String`; Dev Containers, which will set up the development environment automatically inside VSCode; Files for Continuous Integration via GitHub Actions; Wokwi Support(see [Wokwi](#Wokwi)) and logging via the `log` crate
 
@@ -75,7 +75,7 @@ If this fails during flashing, try holding the boot button on your device and ru
 And you flashed your first Rust code onto your ESP32. Congratulations!
 # Wokwi
 [Wokwi](https://wokwi.com/) is a really cool website allowing you to replay your projects(if all your hardware is implemented for Wokwi) completely in the browser. Some features may cost something in the future, but I just found it incredibly helpful in the past. It also has a plugin for VScode, essentially doing the same but right in your IDE.
-![A wokwi project showcasing an ESP32 connected to a matrix display](images/wokwi.avif) 
+![A wokwi project showcasing an ESP32 connected to a matrix display](/images/wokwi.avif) 
 
 ## Testing
 To have tests for your project, you can try [embedded-test](https://github.com/probe-rs/embedded-test). Be aware though that it is still in Alpha and may not work for you.
@@ -120,7 +120,7 @@ If you want an overview of new features in the last few months in esp-rs you sho
 Additionally, there is an [automatic digest](https://esp-rs.github.io/repo-activity-digest/) for every repository of the [esp-rs](https://github.com/esp-rs) organization where you can check out the latest developments in the respective repository.
 
 Here is the current repository digest for [esp-hal](https://github.com/esp-rs/esp-hal), which houses most of the no-std development I'm interested in:
-![esp-hal digest](images/esp-hal-digest.avif)
+![esp-hal digest](/images/esp-hal-digest.avif)
 
 
 This is something I struggled with a lot while getting into microcontroller programming using Rust since esp-rs was far less practical and no guides were written down, so I decided to write a comprehensive guide. I hope it helped you and provides you with some resources on how to get help. If there's anything I missed, don't hesitate to give me a heads-up!

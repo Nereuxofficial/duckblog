@@ -30,7 +30,7 @@ If you made a project that you think could be useful to somebody: Share it and d
 
 ## Examples of how to use functions
 The Rust std library is among the best documented Rust projects. You commonly see examples of how to use these functions. These also show up in IDEs, which is a massive productivity booster. Bonus Points if the code examples show what assumptions about them are wrong. As for keeping them updated: [cargo test runs them by default](https://doc.rust-lang.org/cargo/commands/cargo-test.html#documentation-tests) and breaking these tests may remind you to update the now-outdated documentation as well.
-![filter_map documentation of the std crate](images/filter_map_documentation.avif)
+![filter_map documentation of the std crate](/images/filter_map_documentation.avif)
 
 ## What can you do?
 That's all well and good. Library authors should be aware that good documentation often saves users a lot of trouble (and maybe themselves some problems). But what can you do as a user of this library? 

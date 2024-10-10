@@ -35,7 +35,7 @@ And it has to be said that no library author is obliged to support any of these 
 Rust also has a [list of targets](https://doc.rust-lang.org/rustc/platform-support.html) along with what they support.
 
 And are the levels mentioned in the article in a simple graphic you can download and share(created using the excellent [Excalidraw](https://excalidraw.com/)):
-![Rust Library Compatibility Levels](images/rust-compatibility-levels.avif)
+![Rust Library Compatibility Levels](/images/rust-compatibility-levels.avif)
 
 I hope this was informative to you. If you have any questions or suggestions feel free to [contact me](https://nereux.blog/contact/).
 And if you want to support me and my work, you can do so [here](https://github.com/sponsors/Nereuxofficial).
