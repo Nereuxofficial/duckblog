@@ -21,7 +21,7 @@
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
-                "@type": "NewsArticle",
+                "@type": "Blog",
                 "headline": "{{ metadata.title }}",
                 "image": [
                     {% capture image_urls %}
@@ -47,9 +47,17 @@
     {% unless metadata.images == empty %}
         <meta property="og:image" content="https://nereux.blog/{{ metadata.images[0] }}">
     {% endunless %}
+    <! Styling: A minor fix as well as Atkinson Hyperlegible for better readability>
     <style>
+        @font-face{
+            font-family: 'AtkinsonHyperlegible';
+            src: url('/static/Atkinson-Hyperlegible-Regular.woff2') format('woff2');
+        }
         h2 {
             font-size: 2rem;
+        }
+        html {
+            font-family: 'AtkinsonHyperlegible', sans-serif !important;
         }
     </style>
 </head>

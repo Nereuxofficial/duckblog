@@ -190,7 +190,7 @@ async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
         Html(markup).into_response()
     } else {
         debug!("Post not found because: {:#?}", loaded_post);
-        handler_404().await.into_response()
+        handler_404(path).await.into_response()
     }
 }
 #[instrument]
@@ -221,7 +221,8 @@ async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
 
 /// Handler for 404 Not found. Note that we include the file at compile time since it's not gonna change
 #[instrument(name = "404")]
-async fn handler_404() -> impl IntoResponse {
+async fn handler_404(path: String) -> impl IntoResponse {
+    error!("Path not found: {path}");
     (
         StatusCode::NOT_FOUND,
         Html::from(include_str!("../liquid/404.html")),
