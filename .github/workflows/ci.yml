@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        toolchain: [stable, nightly]
+        toolchain: [nightly]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -28,6 +28,7 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
+          components: rustc-codegen-cranelift-preview
 
       - name: Use Rust Cache
         if: ${{ runner.os == 'Linux' }}
@@ -86,7 +87,7 @@ jobs:
           profile: minimal
           toolchain: nightly
           override: true
-          components: clippy
+          components: clippy rustc-codegen-cranelift-preview
 
       - name: Install Protobuf
         if: ${{ runner.os == 'Linux' }}
