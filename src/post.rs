@@ -145,7 +145,7 @@ impl Post {
             warn!("Path {} contains double slashes, this is not allowed", path);
             path = path.replace("//", "/");
         }
-        println!("Parsing post `{}`", path);
+        debug!("Parsing post `{}`", path);
         let file = read_to_string(path).await?;
         // Split content from metadata
         let mut content_split_iterator = file.split("---");

@@ -1,2 +1,7 @@
 [build]
 rustflags = ["-C", "target-cpu=native"]
+[unstable]
+codegen-backend = true
+
+[profile.dev]
+codegen-backend = "cranelift"

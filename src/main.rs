@@ -28,11 +28,6 @@ use tokio::sync::RwLock;
 use tower_http::services::ServeDir;
 use tracing::*;
 
-// Use Jemalloc only for musl-64 bits platforms
-#[cfg(all(target_env = "musl", target_pointer_width = "64"))]
-#[global_allocator]
-static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
-
 pub static POSTS: OnceLock<HashMap<String, Post>> = OnceLock::new();
 pub static SPONSORS: OnceLock<Arc<RwLock<Vec<Sponsor>>>> = OnceLock::new();
 
@@ -64,11 +59,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 )))
                 .unwrap();
             let _ = Post::parse_all_posts().await.unwrap();
-            // Spawn a task to refresh them every hour
+            // Spawn a task to refresh them
             tokio::spawn(async move {
                 loop {
-                    tokio::time::sleep(Duration::from_secs(120)).await;
-                    info!("Refreshing Sponsors");
+                    tokio::time::sleep(Duration::from_secs(500)).await;
+                    debug!("Refreshing Sponsors");
                     let new_sponsors = noncached_get_sponsors().await;
                     if let Ok(sponsors) = new_sponsors {
                         let mut sponsor_lock = SPONSORS.get().unwrap().write().await;
