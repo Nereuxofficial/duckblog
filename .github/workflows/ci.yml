@@ -25,9 +25,7 @@ jobs:
       - name: Get Rust toolchain
         uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
-          override: true
           components: rustc-codegen-cranelift-preview
 
       - name: Use Rust Cache
@@ -66,9 +64,7 @@ jobs:
       - name: Get nightly Rust toolchain with rustfmt
         uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: rustfmt
 
       - name: Run cargo fmt --all -- --check
@@ -84,9 +80,7 @@ jobs:
       - name: Get nightly Rust toolchain with clippy
         uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: clippy rustc-codegen-cranelift-preview
 
       - name: Install Protobuf
