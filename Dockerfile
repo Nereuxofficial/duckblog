@@ -1,13 +1,9 @@
 # Adapted from https://kerkour.com/rust-small-docker-image
 ## Builder
-# TODO: Do a scratch image
-FROM rust:slim-bookworm AS builder
+FROM rust:alpine AS builder
 LABEL authors="Nereuxofficial"
 
-RUN rustup target add x86_64-unknown-linux-musl
-RUN update-ca-certificates
-RUN apt update && apt upgrade -y
-RUN apt install -y musl-tools musl-dev
+RUN apk add musl-dev
 
 # Create appuser
 ENV USER=duckblog
@@ -31,7 +27,7 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./liquid ./liquid
 COPY ./src ./src
 
-RUN cargo b -r --target x86_64-unknown-linux-musl
+RUN cargo b -r
 
 ## Run image
 FROM scratch
@@ -42,7 +38,7 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /duckblog
 
 # Copy our build
-COPY --from=builder /duckblog/target/x86_64-unknown-linux-musl/release/duckblog .
+COPY --from=builder /duckblog/target/release/duckblog .
 
 # Use an unprivileged user.
 USER duckblog:duckblog
