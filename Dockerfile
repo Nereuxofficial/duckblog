@@ -20,12 +20,12 @@ RUN adduser \
 
 WORKDIR /duckblog
 
-COPY ./content ./content
 COPY ./static ./static
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./liquid ./liquid
 COPY ./src ./src
+COPY ./content ./content
 
 RUN cargo b -r
 
