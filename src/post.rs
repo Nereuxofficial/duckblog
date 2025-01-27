@@ -5,7 +5,9 @@ use crate::{
     POSTS,
 };
 use chrono::NaiveDate;
+use color_eyre::eyre::anyhow;
 use color_eyre::Result;
+use itertools::Itertools;
 use pulldown_cmark::{html, Options, Parser};
 use regex::Regex;
 use rss::{Category, CategoryBuilder, Item as RssItem, ItemBuilder};
@@ -126,7 +128,9 @@ impl Post {
     // Extract metadata from the markdown file. Expects metadata to be in Obsidian format
     #[instrument(err)]
     async fn extract_metadata(input: &str, text: &str) -> Result<PostMetadata> {
-        let metadata_builder: PostMetadataBuilder = serde_yml::from_str(input)?;
+        //let input = input.lines().map(|l| l.trim()).join("\n").replace(": ", ":");
+        let metadata_builder: PostMetadataBuilder = serde_yaml_ng::from_str(&input)
+            .map_err(|e| anyhow!("{} in this metadata {}", e.to_string(), input))?;
         let ttr = Some(get_reading_time(text));
         Ok(PostMetadata {
             title: metadata_builder.title,
@@ -294,7 +298,10 @@ mod tests {
             .metadata
             .images
             .iter()
-            .any(|image| image.0.contains("//"))));
+            .filter(|image| { image.0.contains("//") })
+            .map(|i| dbg!(i))
+            .next()
+            .is_some()));
     }
 
     #[tokio::test]
