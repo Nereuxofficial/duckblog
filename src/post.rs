@@ -7,7 +7,6 @@ use crate::{
 use chrono::NaiveDate;
 use color_eyre::eyre::anyhow;
 use color_eyre::Result;
-use itertools::Itertools;
 use pulldown_cmark::{html, Options, Parser};
 use regex::Regex;
 use rss::{Category, CategoryBuilder, Item as RssItem, ItemBuilder};
@@ -80,20 +79,41 @@ pub struct PostMetadata {
     /// Data in RFC3339 format (2021-08-23T22:19:48+02:00)
     pub date: NaiveDate,
     pub tags: Vec<Tag>,
-    pub draft: Option<bool>,
+    pub draft: bool,
     pub description: String,
     pub url: String,
     pub time_to_read: Option<usize>,
     pub images: Vec<Image>,
 }
 
+impl PostMetadata {
+    fn parse(input: impl AsRef<str> + Display, text: impl AsRef<str> + Display) -> Result<Self> {
+        let metadata_builder: PostMetadataBuilder = serde_yaml_ng::from_str(input.as_ref())
+            .map_err(|e| anyhow!("{} in this metadata:\n{}", e.to_string(), input))?;
+        let ttr = Some(get_reading_time(text.as_ref()));
+        Ok(PostMetadata {
+            title: metadata_builder.title,
+            date: metadata_builder.date,
+            tags: metadata_builder.tags,
+            draft: metadata_builder.draft,
+            description: metadata_builder.description,
+            url: metadata_builder.url,
+            time_to_read: ttr,
+            images: Post::load_images(text.as_ref()),
+        })
+    }
+}
+
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct PostMetadataBuilder {
     pub title: String,
-    /// Data in RFC3339 format (2021-08-23T22:19:48+02:00)
+    /// Data in ISO 8601 format without timezone (2021-08-23)
     pub date: NaiveDate,
+    #[serde(default)]
     pub tags: Vec<Tag>,
-    pub draft: Option<bool>,
+    #[serde(default)]
+    pub draft: bool,
+    #[serde(default)]
     pub description: String,
     pub url: String,
 }
@@ -104,7 +124,7 @@ impl Default for PostMetadata {
             title: "DuckBlog".to_string(),
             date: "2021-08-23".parse::<NaiveDate>().unwrap(),
             tags: vec![Tag::from_str("Duck"), Tag::from_str("Blog")],
-            draft: Some(false),
+            draft: false,
             description: "Nereuxofficial's blog about mostly Rust".to_string(),
             time_to_read: Some(1337),
             url: "/".to_string(),
@@ -125,24 +145,6 @@ impl Post {
         Self::parse_file(path).await
     }
 
-    // Extract metadata from the markdown file. Expects metadata to be in Obsidian format
-    #[instrument(err)]
-    async fn extract_metadata(input: &str, text: &str) -> Result<PostMetadata> {
-        //let input = input.lines().map(|l| l.trim()).join("\n").replace(": ", ":");
-        let metadata_builder: PostMetadataBuilder = serde_yaml_ng::from_str(&input)
-            .map_err(|e| anyhow!("{} in this metadata {}", e.to_string(), input))?;
-        let ttr = Some(get_reading_time(text));
-        Ok(PostMetadata {
-            title: metadata_builder.title,
-            date: metadata_builder.date,
-            tags: metadata_builder.tags,
-            draft: metadata_builder.draft,
-            description: metadata_builder.description,
-            url: metadata_builder.url,
-            time_to_read: ttr,
-            images: Self::load_images(text).await,
-        })
-    }
     #[instrument(err)]
     pub async fn parse_file(mut path: String) -> Result<Self> {
         if path.contains("//") {
@@ -155,7 +157,7 @@ impl Post {
         let mut content_split_iterator = file.split("---");
         let metadata_part = content_split_iterator.nth(1).unwrap();
         let text = content_split_iterator.next().unwrap();
-        let metadata = Self::extract_metadata(metadata_part, text).await?;
+        let metadata = PostMetadata::parse(metadata_part, text)?;
         // Before Parsing replace Cool duck sections
         let parsed_md = Self::cool_duck_replacement(&file).await;
         let parser = Parser::new_ext(parsed_md.as_str(), Options::all());
@@ -184,7 +186,7 @@ impl Post {
     }
     /// Extract images out of markdown text
     #[instrument]
-    async fn load_images(text: &str) -> Vec<Image> {
+    fn load_images(text: &str) -> Vec<Image> {
         let img_regex = Regex::new(r#"!\[.*?]\((.*?)\)"#).unwrap();
         img_regex
             .captures_iter(text)
@@ -229,7 +231,7 @@ impl Post {
             );
         }
         if cfg!(not(debug_assertions)) {
-            posts_list.retain(|post| post.metadata.draft != Some(true));
+            posts_list.retain(|post| post.metadata.draft == false);
         }
         let _ = POSTS.set(HashMap::from_iter(
             posts_list

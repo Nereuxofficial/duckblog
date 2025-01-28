@@ -1,5 +1,5 @@
 ---
-date: <% tp.date.now("DD-MM-YYYY") %>
+date: <% tp.date.now("YYYY-MM-DD") %>
 title: <% tp.file.title %>
 description: 
 tags: 
