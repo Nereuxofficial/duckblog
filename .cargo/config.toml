@@ -1,5 +1,6 @@
 [build]
-rustflags = ["-C", "target-cpu=native"]
+rustflags = ["-Z", "threads=16"]
+
 [unstable]
 codegen-backend = true
 
