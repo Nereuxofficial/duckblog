@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             // Load Sponsors
             SPONSORS
                 .set(Arc::new(RwLock::new(
-                    noncached_get_sponsors().await.unwrap(),
+                    noncached_get_sponsors().await.unwrap_or_default(),
                 )))
                 .unwrap();
             let _ = Post::parse_all_posts().await.unwrap();
