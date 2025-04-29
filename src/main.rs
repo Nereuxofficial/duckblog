@@ -85,7 +85,7 @@ async fn start_server() {
             "/security.txt",
             get(|| async { read_to_string("./security.txt").await.unwrap() }),
         )
-        .route("/posts/*path", get(get_post))
+        .route("/posts/{*path}", get(get_post))
         .route(
             "/posts",
             get(|| async { list_posts(Path(String::new())).await }),
@@ -95,7 +95,7 @@ async fn start_server() {
             "/index.html",
             get(|| async { list_posts(Path(String::new())).await }),
         )
-        .route("/tags/:tag", get(list_posts))
+        .route("/tags/{:tag}", get(list_posts))
         .route("/about", get(get_about))
         .route(
             "/donate",
