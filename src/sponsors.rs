@@ -1,4 +1,5 @@
 use crate::SPONSORS;
+use color_eyre::eyre::OptionExt;
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
@@ -61,7 +62,9 @@ pub async fn noncached_get_sponsors() -> color_eyre::Result<Vec<Sponsor>> {
 
     Ok(response
         .get("data")
-        .unwrap()
+        .ok_or_eyre(format!(
+            "Failed to get data from GitHub. Response: {response}",
+        ))?
         .get("viewer")
         .unwrap()
         .get("sponsorshipsAsMaintainer")
