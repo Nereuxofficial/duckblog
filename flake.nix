@@ -181,5 +181,61 @@
           ];
         };
       }
-    );
+    )
+    // {
+
+      nixosModule =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        with lib;
+        let
+          cfg = config.services.duckblog;
+        in
+        {
+          options.services.duckblog = {
+            enable = mkEnableOption "Enables the gohello HTTP service";
+          };
+
+          config = mkIf cfg.enable {
+            systemd.services."bene.duckblog" = {
+              description = "DuckBlog HTTP service";
+              wantedBy = [ "multi-user.target" ];
+
+              serviceConfig =
+                let
+                  pkg = self.packages.${pkgs.system}.default;
+                in
+                {
+                  Restart = "on-failure";
+                  ExecStart = "${pkg}/bin/duckblog";
+                  DynamicUser = "yes";
+                  RuntimeDirectory = "bene.duckblog";
+                  RuntimeDirectoryMode = "0755";
+                };
+            };
+          };
+        };
+
+      nixosConfigurations = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (
+        system:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            (
+              { pkgs, ... }:
+              {
+                boot.isContainer = true;
+                networking.hostName = "duckblog";
+                networking.firewall.allowedTCPPorts = [ 8000 ];
+                services.duckblog.enable = true;
+              }
+            )
+          ];
+        }
+      );
+    };
 }
