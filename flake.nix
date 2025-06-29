@@ -197,7 +197,7 @@
         in
         {
           options.services.duckblog = {
-            enable = mkEnableOption "Enables the gohello HTTP service";
+            enable = mkEnableOption "Enables the duckblog HTTP service";
           };
 
           config = mkIf cfg.enable {
@@ -225,6 +225,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
+            self.nixosModule
             (
               { pkgs, ... }:
               {
