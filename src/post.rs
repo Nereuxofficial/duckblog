@@ -231,7 +231,7 @@ impl Post {
             );
         }
         if cfg!(not(debug_assertions)) {
-            posts_list.retain(|post| post.metadata.draft == false);
+            posts_list.retain(|post| !post.metadata.draft);
         }
         let _ = POSTS.set(HashMap::from_iter(
             posts_list
@@ -314,6 +314,6 @@ mod tests {
         .await
         .unwrap();
         let serialized = serde_json::to_string(&post).unwrap();
-        println!("{}", serialized);
+        println!("{serialized}");
     }
 }

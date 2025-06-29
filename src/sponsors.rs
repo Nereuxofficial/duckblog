@@ -84,15 +84,4 @@ pub async fn noncached_get_sponsors() -> color_eyre::Result<Vec<Sponsor>> {
         .collect::<Vec<Sponsor>>())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use dotenvy::dotenv;
-
-    #[tokio::test]
-    async fn test_get_sponsors() {
-        dotenv().ok();
-        let _sponsors = noncached_get_sponsors().await.unwrap();
-        println!("{:?}", _sponsors);
-    }
-}
+// TODO: Get_sponsors test with mocked value

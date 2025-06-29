@@ -22,24 +22,19 @@ pub async fn generate_static_site() {
     let _ = fs::create_dir("public/tags").await;
     let _ = fs::create_dir("public/posts").await;
     // Wait until the site is up
-    while reqwest::get(format!("http://{}/", SERVER_URL))
-        .await
-        .is_err()
-    {
+    while reqwest::get(format!("http://{SERVER_URL}/")).await.is_err() {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     }
     generate_posts().await;
     copy_static_files().await;
     generate_404().await;
     generate_tags().await;
-    save_page_to_path(Uri::from_str(format!("http://{}/index.html", SERVER_URL).as_str()).unwrap())
+    save_page_to_path(Uri::from_str(format!("http://{SERVER_URL}/index.html").as_str()).unwrap())
         .await;
-    save_page_to_path(Uri::from_str(format!("http://{}/about", SERVER_URL).as_str()).unwrap())
-        .await;
-    save_page_to_path(Uri::from_str(format!("http://{}/posts", SERVER_URL).as_str()).unwrap())
-        .await;
+    save_page_to_path(Uri::from_str(format!("http://{SERVER_URL}/about").as_str()).unwrap()).await;
+    save_page_to_path(Uri::from_str(format!("http://{SERVER_URL}/posts").as_str()).unwrap()).await;
     // Rss feed
-    save_page_to_path(Uri::from_str(format!("http://{}/feed.xml", SERVER_URL).as_str()).unwrap())
+    save_page_to_path(Uri::from_str(format!("http://{SERVER_URL}/feed.xml").as_str()).unwrap())
         .await;
     copy_post_images().await;
     info!("Static site generated");
@@ -54,7 +49,7 @@ async fn copy_post_images() {
             .is_ok()
         {
             let src = format!("content/{}images", post.path);
-            let dest = format!("{}/{}/images", FOLDER, post.path);
+            let dest = format!("{FOLDER}/{}/images", post.path);
             let res = copy_dir(&src, &dest);
             if res.is_ok() {
                 info!("Copied images from {} to {}", &src, &dest);
@@ -66,10 +61,7 @@ async fn copy_post_images() {
 }
 async fn generate_posts() {
     // Wait until the site is up
-    while reqwest::get(format!("http://{}/", SERVER_URL))
-        .await
-        .is_err()
-    {
+    while reqwest::get(format!("http://{SERVER_URL}/")).await.is_err() {
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
     let posts = Post::parse_all_posts().await.unwrap();
@@ -78,7 +70,7 @@ async fn generate_posts() {
         posts.iter().map(|x| x.path.clone()).join(", ")
     );
     for post in posts {
-        let uri = format!("http://{}{}", SERVER_URL, post.path);
+        let uri = format!("http://{SERVER_URL}{}", post.path);
         save_page_to_path(Uri::from_str(uri.as_str()).unwrap()).await;
     }
 }
@@ -90,13 +82,13 @@ async fn generate_tags() {
         .map(|post| post.metadata.tags.clone())
         .for_each(|tag| tags.extend(tag.iter().map(|x| x.to_string()).collect::<Vec<String>>()));
     for tag in tags.iter().unique() {
-        let uri = format!("http://{}/tags/{}", SERVER_URL, tag);
+        let uri = format!("http://{SERVER_URL}/tags/{tag}");
         save_page_to_path(Uri::from_str(uri.as_str()).unwrap()).await;
     }
 }
 /// Save 404 page
 async fn generate_404() {
-    let uri = format!("http://{}/404", SERVER_URL);
+    let uri = format!("http://{SERVER_URL}/404");
     save_page_to_path(Uri::from_str(uri.as_str()).unwrap()).await;
 }
 /// Saves the html under the URL to the path in the URL
@@ -106,9 +98,9 @@ async fn save_page_to_path(uri: Uri) {
     if path.starts_with('/') {
         path = &path[1..path.len()];
     }
-    let big_path = format!("{}{}", path, "index");
+    let big_path = format!("{path}index");
     if path.ends_with('/') {
-        fs::create_dir_all(format!("{}/{}", FOLDER, path))
+        fs::create_dir_all(format!("{FOLDER}/{path}"))
             .await
             .expect("Could not create dir");
         path = big_path.as_str();
@@ -119,7 +111,7 @@ async fn save_page_to_path(uri: Uri) {
     if path.ends_with(".html") {
         path = &path[..path.len() - 5];
     }
-    let mut file = tokio::fs::File::create(format!("{}{}.html", FOLDER, path))
+    let mut file = tokio::fs::File::create(format!("{FOLDER}{path}.html"))
         .await
         .unwrap();
     while let Some(chunk) = response.chunk().await.unwrap() {
@@ -128,5 +120,5 @@ async fn save_page_to_path(uri: Uri) {
 }
 /// Copy our static resources
 async fn copy_static_files() {
-    copy_dir("static", format!("{}static", FOLDER)).expect("Copying files failed");
+    copy_dir("static", format!("{FOLDER}static")).expect("Copying files failed");
 }

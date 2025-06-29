@@ -161,7 +161,7 @@ async fn get_about() -> impl IntoResponse {
 async fn get_post(Path(path): Path<String>) -> impl IntoResponse {
     if !path.ends_with('/') {
         // Workaround for wrong image paths, breaks /about
-        return Redirect::to(format!("/posts/{}/", path).as_str()).into_response();
+        return Redirect::to(format!("/posts/{path}/").as_str()).into_response();
     }
     // Remove trailing slash
     let path = format!("/posts/{}", path.trim_end_matches('/'));
