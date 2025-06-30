@@ -96,6 +96,7 @@
           commonArgs
           // {
             inherit cargoArtifacts;
+
           }
         );
       in
@@ -185,6 +186,7 @@
     // {
 
       nixosModule =
+        src:
         {
           config,
           lib,
@@ -198,12 +200,37 @@
         {
           options.services.duckblog = {
             enable = mkEnableOption "Enables the duckblog HTTP service";
+            workingDirectory = mkOption {
+              type = types.str;
+              default = "/var/lib/duckblog";
+              description = "Working directory for the duckblog service";
+            };
+            environmentFile = mkOption {
+              type = types.nullOr types.path;
+              default = null;
+              description = "Path to environment file (.env) to load into the service";
+            };
           };
 
           config = mkIf cfg.enable {
             systemd.services."bene.duckblog" = {
               description = "DuckBlog HTTP service";
               wantedBy = [ "multi-user.target" ];
+
+              preStart = ''
+                # Create working directory if it doesn't exist
+                mkdir -p ${cfg.workingDirectory}
+
+                # Copy content and static files to working directory
+                ${pkgs.rsync}/bin/rsync -a --delete "${src}/content/" "${cfg.workingDirectory}/content/"
+                ${pkgs.rsync}/bin/rsync -a --delete "${src}/static/" "${cfg.workingDirectory}/static/"
+                ${pkgs.rsync}/bin/rsync -a --delete "${src}/liquid/" "${cfg.workingDirectory}/liquid/"
+
+                # Copy .env file if it exists
+                if [ -f "${src}/.env" ]; then
+                  cp "${src}/.env" "${cfg.workingDirectory}/.env"
+                fi
+              '';
 
               serviceConfig =
                 let
@@ -212,27 +239,70 @@
                 {
                   Restart = "on-failure";
                   ExecStart = "${pkg}/bin/duckblog";
+                  WorkingDirectory = cfg.workingDirectory;
                   DynamicUser = "yes";
+                  StateDirectory = "duckblog";
                   RuntimeDirectory = "bene.duckblog";
                   RuntimeDirectoryMode = "0755";
-                };
+                }
+                // (lib.optionalAttrs (cfg.environmentFile != null) {
+                  EnvironmentFile = cfg.environmentFile;
+                });
             };
           };
         };
 
       nixosConfigurations = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (
         system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ (import rust-overlay) ];
+          };
+          inherit (pkgs) lib;
+          unfilteredRoot = ./.;
+          src = lib.fileset.toSource {
+            root = unfilteredRoot;
+            fileset = lib.fileset.unions [
+              (lib.fileset.fileFilter (
+                file:
+                lib.any file.hasExt [
+                  "woff2"
+                  "css"
+                  "js"
+                  "svg"
+                  "key"
+                  "html"
+                  "ico"
+                  "liquid"
+                  "txt"
+                  "md"
+                  "avif"
+                  "toml"
+                ]
+              ) unfilteredRoot)
+              (lib.fileset.maybeMissing ./static)
+              (lib.fileset.maybeMissing ./liquid)
+              (lib.fileset.maybeMissing ./content)
+              (lib.fileset.maybeMissing ./.env)
+            ];
+          };
+        in
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
-            self.nixosModule
+            (self.nixosModule src)
             (
               { pkgs, ... }:
               {
                 boot.isContainer = true;
                 networking.hostName = "duckblog";
                 networking.firewall.allowedTCPPorts = [ 8000 ];
-                services.duckblog.enable = true;
+                services.duckblog = {
+                  enable = true;
+                  # Uncomment and adjust path as needed:
+                  # environmentFile = "/host/.env";  # Path to .env file on host
+                };
               }
             )
           ];
