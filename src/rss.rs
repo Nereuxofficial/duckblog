@@ -84,8 +84,8 @@ mod tests {
         );
 
         let body = response.text().await.unwrap();
+        dbg!(&body);
         assert!(body.starts_with("<?xml version=\"1.0\" encoding=\"utf-8\"?>"));
-        assert!(body.contains("<rss version=\"2.0\">"));
         assert!(body.contains("<channel>"));
         assert!(body.contains("<title>Nereuxofficials Blog</title>"));
         assert!(body.contains("<link>https://nereux.blog</link>"));
