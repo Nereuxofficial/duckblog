@@ -10,8 +10,9 @@ use crate::sponsors::{get_sponsors, noncached_get_sponsors, Sponsor};
 use crate::ssg::generate_static_site;
 use crate::utils::{build_header, liquid_parse};
 use axum::body::Body;
-use axum::extract::Path;
+use axum::extract::{Path, Request};
 use axum::http::StatusCode;
+use axum::middleware::{self, Next};
 use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
 use itertools::Itertools;
@@ -46,7 +47,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             ..Default::default()
         },
     ));
-    tracing_subscriber::fmt().init();
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        )
+        .init();
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
@@ -214,8 +220,7 @@ async fn list_posts(Path(path): Path<String>) -> impl IntoResponse {
     Html(markup).into_response()
 }
 
-/// Handler for 404 Not found. Note that we include the file at compile time since it's not gonna change
-#[instrument(name = "404")]
+/// Handler for 404 Not found.
 async fn handler_404(path: String) -> impl IntoResponse {
     error!("Path not found: {path}");
     (

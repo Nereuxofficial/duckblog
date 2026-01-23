@@ -24,11 +24,20 @@ pub struct Post {
 #[allow(clippy::from_over_into)]
 impl Into<RssItem> for Post {
     fn into(self) -> RssItem {
+        let rfc2822_date = self
+            .metadata
+            .date
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(chrono::Utc)
+            .unwrap()
+            .to_rfc2822();
         ItemBuilder::default()
             .title(Some(self.metadata.title))
-            .link(Some(format!("https://nereux.blog/posts/{}", self.path)))
+            .link(Some(format!("https://nereux.blog{}", self.path)))
             .description(Some(self.metadata.description))
-            .pub_date(Some(self.metadata.date.to_string()))
+            .content(self.content)
+            .pub_date(Some(rfc2822_date))
             .categories(
                 self.metadata
                     .tags
@@ -151,7 +160,7 @@ impl Post {
             warn!("Path {} contains double slashes, this is not allowed", path);
             path = path.replace("//", "/");
         }
-        debug!("Parsing post `{}`", path);
+        trace!("Parsing post `{}`", path);
         let file = read_to_string(path).await?;
         // Split content from metadata
         let mut content_split_iterator = file.split("---");

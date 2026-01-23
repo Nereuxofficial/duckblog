@@ -14,14 +14,14 @@ copy_dir = "0.1.3"
 dotenvy = "0.15.7"
 itertools = "0.14.0"
 liquid = "0.26"
-pulldown-cmark = { version = "0.12" }
+pulldown-cmark = { version = "0.13" }
 regex = "1.11"
 reqwest = { version = "0.12", default-features = false, features = [
   "rustls-tls",
   "json",
 ] }
 rss = "2.0"
-sentry = { version = "0.37", default-features = false, features = [
+sentry = { version = "0.45", default-features = false, features = [
   "anyhow",
   "rustls",
   "backtrace",
@@ -34,15 +34,10 @@ sentry = { version = "0.37", default-features = false, features = [
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml_ng = "0.10.0"
-tokio = { version = "1.43", features = ["full"] }
+tokio = { version = "1.43", features = ["rt-multi-thread"] }
 tower-http = { version = "0.5", features = ["fs", "trace"] }
 tracing = { version = "0.1", default-features = false, features = [
   "std",
   "attributes",
 ] }
-tracing-subscriber = "0.3"
-
-[profile.release]
-debug = true
-lto = "off"
-split-debuginfo = "unpacked"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
