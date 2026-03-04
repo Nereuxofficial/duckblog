@@ -10,9 +10,8 @@ use crate::sponsors::{get_sponsors, noncached_get_sponsors, Sponsor};
 use crate::ssg::generate_static_site;
 use crate::utils::{build_header, liquid_parse};
 use axum::body::Body;
-use axum::extract::{Path, Request};
+use axum::extract::Path;
 use axum::http::StatusCode;
-use axum::middleware::{self, Next};
 use axum::response::{Html, IntoResponse, Redirect, Response};
 use axum::{routing::get, Router};
 use itertools::Itertools;
@@ -53,6 +52,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
         )
         .init();
+    // Install the default crypto provider
+    rustls::crypto::CryptoProvider::install_default(rustls::crypto::ring::default_provider())
+        .unwrap();
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
