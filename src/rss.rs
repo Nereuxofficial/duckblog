@@ -40,6 +40,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_rss_feed() {
+        let _ = rustls::crypto::ring::default_provider().install_default();
         let posts = Post::parse_all_posts().await.unwrap();
         let feed = build_rss_feed().await;
 
